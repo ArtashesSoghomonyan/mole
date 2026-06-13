@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
@@ -14,6 +14,7 @@ class APIHealthView(APIView):
 
 
 urlpatterns = [
+    path("api/users/", include(("apps.users.urls", "users"))),
     path("api/health/", APIHealthView.as_view(), name="api_health"),
 ]
 
