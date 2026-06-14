@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     # Third party apps
     "rest_framework",
     "corsheaders",
+    'rest_framework_simplejwt',
     # Local apps
     "apps.users.apps.UsersConfig",
 ]
@@ -134,5 +135,12 @@ STATIC_URL = "static/"
 AUTH_USER_MODEL = "users.User"
 
 AUTHENTICATION_BACKENDS = [
-    "apps.users.backends.EmailBackend",
+    "django.contrib.auth.backends.ModelBackend",
 ]
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        "rest_framework.authentication.SessionAuthentication",
+    ]
+}
