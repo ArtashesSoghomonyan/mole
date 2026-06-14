@@ -6,7 +6,8 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 
-from .serializers import UserSerializer
+from .permissions import IsAnonymous
+from .serializers import RegisterSerializer, UserSerializer
 
 
 class BrowserCompatibleTokenObtainPairView(TokenObtainPairView):
@@ -16,11 +17,11 @@ class BrowserCompatibleTokenObtainPairView(TokenObtainPairView):
             serializer.is_valid(raise_exception=True)
         except TokenError as e:
             raise InvalidToken(e.args[0])
-        
+
         # Log the user into the Django session
         login(request, serializer.user)
-        
-        
+
+
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
 
 
@@ -38,3 +39,14 @@ class LogoutView(APIView):
     def post(self, request, *args, **kwargs):
         logout(request)
         return Response({"detail": "Successfully logged out."}, status=status.HTTP_200_OK)
+
+
+class RegisterView(APIView):
+    permission_classes = [IsAnonymous]
+
+    def post(self, request):
+        serializer = RegisterSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        result = UserSerializer(user).data
+        return Response(result, status=status.HTTP_201_CREATED)
