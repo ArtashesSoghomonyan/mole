@@ -66,6 +66,7 @@
   --app-border: var(--color-4);
   --app-accent: var(--primary-70);
   color-scheme: dark;
+  --theme: black;
 }
 
 :root[data-theme='light'] {
@@ -80,6 +81,7 @@
   --app-border: var(--color-4);
   --app-accent: var(--secondary-50);
   color-scheme: light;
+  --theme: white;
 }
 
 * {
