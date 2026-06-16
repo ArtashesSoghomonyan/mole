@@ -42,7 +42,7 @@ const RegisterPage = () => {
     })
 
     try {
-      const response = await axios.post("http://localhost:8000/api/users/register/", {
+      const response = await axios.post(`${process.env.API_URL}/users/register/`, {
         email: formData.email,
         username: formData.username,
         first_name: formData.firstName,
@@ -62,7 +62,7 @@ const RegisterPage = () => {
     setFormData({...formData, username: username});
 
     const response = await axios.get(
-      "http://localhost:8000/api/users/check-username/",
+      `${process.env.API_URL}/users/check-username/`,
       {
         params: {
           username: username,
@@ -85,7 +85,7 @@ const RegisterPage = () => {
     setFormData({...formData, email: email});
 
     const response = await axios.get(
-      "http://localhost:8000/api/users/check-email/",
+      `${process.env.API_URL}/users/check-email/`,
       {
         params: {
           email: email,
