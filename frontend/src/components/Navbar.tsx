@@ -2,6 +2,7 @@
 
 import "./Navbar.css";
 import { useAuth } from "@/context/AuthContext";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const Navbar = () => {
   const { user, loading } = useAuth();
@@ -9,10 +10,16 @@ const Navbar = () => {
   if (loading) return <></>
 
   if (!user) {
-    return <h1>Login right now!</h1>
+    return <>
+      Login right now!
+      <ThemeToggle />
+    </>
   }
 
-  return <h1>Hello {user.username}</h1>
+  return <>
+    Hello {user.username}
+    <ThemeToggle />
+  </>
 }
 
 export default Navbar;
