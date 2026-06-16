@@ -1,0 +1,25 @@
+.registration-form {
+  background-color: var(--theme);
+  padding: var(--size-4);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  width: 500px;
+  align-items: center;
+  gap: var(--size-0);
+  user-select: none;
+}
+
+@media (max-width: 600px) {
+  .registration-form {
+    width: 90%;
+  }
+}
+
+.registration-form label {
+  font-size: var(--size-4);
+}
+
+.registration-form .error {
+  color: red;
+}

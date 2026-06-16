@@ -13,7 +13,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (credentials: LoginCredentials) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -22,11 +22,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  const logout = useCallback(() => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    setUser(null);
-    setLoading(false);
+  const logout = useCallback(async () => {
+    setLoading(true);
+    const token = localStorage.getItem("accessToken");
+
+    try {
+      if (token) {
+        await axios.post(
+          "http://localhost:8000/api/users/logout/",
+          {},
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+      }
+    } catch (error) {
+      console.error("Something went wrong with logout", error);
+    } finally {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      setUser(null);
+      setLoading(false);
+    }
   }, []);
 
   const fetchUser = useCallback(async (token: string) => {
@@ -37,11 +52,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(response.data);
     } catch (error) {
       console.error("Failed to fetch user:", error);
-      logout();
     } finally {
       setLoading(false);
     }
-  }, [logout]);
+  }, []);
 
   useEffect(() => {
     void Promise.resolve().then(async () => {

@@ -10,16 +10,16 @@
   --size-8: 100px;
   --size-9: 160px;
   --size-10: 240px;
-  --primary-10: hsl(0, 50%, 10%);
-  --primary-30: hsl(0, 50%, 30%);
-  --primary-50: hsl(0, 50%, 50%);
-  --primary-70: hsl(0, 50%, 70%);
-  --primary-90: hsl(0, 50%, 90%);
-  --secondary-10: hsl(330, 10%, 10%);
-  --secondary-30: hsl(330, 10%, 30%);
-  --secondary-50: hsl(330, 10%, 50%);
-  --secondary-70: hsl(330, 10%, 70%);
-  --secondary-90: hsl(330, 10%, 90%);
+  --primary-10: hsl(0, 70%, 10%);
+  --primary-30: hsl(0, 70%, 30%);
+  --primary-50: hsl(0, 70%, 50%);
+  --primary-70: hsl(0, 70%, 70%);
+  --primary-90: hsl(0, 70%, 90%);
+  --secondary-10: hsl(330, 50%, 10%);
+  --secondary-30: hsl(330, 50%, 30%);
+  --secondary-50: hsl(330, 50%, 50%);
+  --secondary-70: hsl(330, 50%, 70%);
+  --secondary-90: hsl(330, 50%, 90%);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -29,6 +29,7 @@
     --color-3: hsl(0, 0%, 50%);
     --color-4: hsl(0, 0%, 70%);
     --color-5: hsl(0, 0%, 90%);
+    --theme: black;
     --app-bg: var(--color-1);
     --app-surface: var(--color-2);
     --app-text: var(--color-5);
@@ -44,6 +45,7 @@
     --color-3: hsl(0, 0%, 50%);
     --color-4: hsl(0, 0%, 30%);
     --color-5: hsl(0, 0%, 10%);
+    --theme: white;
     --app-bg: var(--color-1);
     --app-surface: #ffffff;
     --app-text: var(--color-5);
@@ -92,4 +94,72 @@ body {
   background: var(--app-bg);
   color: var(--app-text);
   min-height: 100vh;
+}
+
+/* UI elements */
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  width: 310px;
+  padding: var(--size-2) var(--size-3);
+  font-size: var(--size-3);
+  border: 1px solid var(--color-3);
+  border-radius: var(--size-1);
+  background-color: var(--color-1);
+  color: var(--color-5);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+
+input[type="text"]::placeholder,
+input[type="email"]::placeholder,
+input[type="password"]::placeholder {
+  color: #9ca3af;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus {
+  border-color: var(--secondary-50);
+  box-shadow: 0 0 0 3px var(--secondary-70);
+}
+
+.btn {
+  padding: var(--size-2) var(--size-4);
+  font-size: var(--size-3);
+  font-weight: 500;
+  border-radius: var(--size-1);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-filled {
+  background-color: var(--primary-50);
+  color: var(--theme);
+  border: 0;
+}
+
+.btn-filled:hover {
+  background-color: var(--primary-30);
+}
+
+.btn-filled:active {
+  transform: translateY(1px);
+}
+
+.btn-outlined {
+  background-color: transparent;
+  color: var(--color-5);
+  border: var(--size-0) solid var(--primary-50);
+}
+
+.btn-outlined:hover {
+  background-color: var(--primary-70);
+  border-color: var(--primary-70);
+}
+
+.btn-outlined:active {
+  transform: translateY(1px);
 }

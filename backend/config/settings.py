@@ -41,6 +41,13 @@ INSTALLED_APPS = [
     "apps.users.apps.UsersConfig",
 ]
 
+# Development extensions
+
+if DEBUG:
+    INSTALLED_APPS.extend([
+        "django_extensions",
+    ])
+
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
