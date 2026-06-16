@@ -29,7 +29,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       if (token) {
         await axios.post(
-          `${process.env.API_URL}/users/logout/`,
+          `${process.env.NEXT_PUBLIC_API_URL}/users/logout/`,
           {},
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -46,7 +46,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchUser = useCallback(async (token: string) => {
     try {
-      const response = await axios.get<User>(`${process.env.API_URL}/users/me/`, {
+      const response = await axios.get<User>(`${process.env.NEXT_PUBLIC_API_URL}/users/me/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUser(response.data);
@@ -72,7 +72,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = useCallback(async ({ email, password }: LoginCredentials) => {
     try {
       const response = await axios.post<{ access: string; refresh: string }>(
-        `${process.env.API_URL}/users/login/`,
+        `${process.env.NEXT_PUBLIC_API_URL}/users/login/`,
         { email, password }
       );
       localStorage.setItem("accessToken", response.data.access);

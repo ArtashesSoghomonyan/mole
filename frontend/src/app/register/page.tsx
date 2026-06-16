@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { redirect } from "next/navigation";
 import axios from "axios";
+
+import { useAuth } from "@/context/AuthContext";
 import "./style.css";
 
 type FormValues = {
@@ -14,6 +17,8 @@ type FormValues = {
 }
 
 const RegisterPage = () => {
+  const { user, loading, login } = useAuth();
+
   const [finalError, setFinalError] = useState<boolean>(false);
 
   const [errors, setErrors] = useState<FormValues>({
@@ -42,7 +47,7 @@ const RegisterPage = () => {
     })
 
     try {
-      const response = await axios.post(`${process.env.API_URL}/users/register/`, {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/users/register/`, {
         email: formData.email,
         username: formData.username,
         first_name: formData.firstName,
@@ -62,7 +67,7 @@ const RegisterPage = () => {
     setFormData({...formData, username: username});
 
     const response = await axios.get(
-      `${process.env.API_URL}/users/check-username/`,
+      `${process.env.NEXT_PUBLIC_API_URL}/users/check-username/`,
       {
         params: {
           username: username,
@@ -85,7 +90,7 @@ const RegisterPage = () => {
     setFormData({...formData, email: email});
 
     const response = await axios.get(
-      `${process.env.API_URL}/users/check-email/`,
+      `${process.env.NEXT_PUBLIC_API_URL}/users/check-email/`,
       {
         params: {
           email: email,
@@ -145,6 +150,14 @@ const RegisterPage = () => {
     } else {
       setErrors({...errors, password2: null});
     }
+  }
+
+  if (!!user) {
+    redirect("/");
+  }
+
+  if (loading) {
+    return <h1>Loading ...</h1>
   }
 
   return <>
