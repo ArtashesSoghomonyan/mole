@@ -58,23 +58,45 @@ const RegisterPage = () => {
 
   }
 
-  const validateUsername = (username: string) => {
+  const validateUsername = async (username: string) => {
     setFormData({...formData, username: username});
+
+    const response = await axios.get(
+      "http://localhost:8000/api/users/check-username/",
+      {
+        params: {
+          username: username,
+        },
+      }
+    );
 
     if (!(username.length >= 1 && username.length <= 50)) {
       setErrors({...errors, username: "Username can have less than 50 characters."});
     } else if (!/^[a-z_]+$/.test(username)) {
       setErrors({...errors, username: "Username can only contain english letters and underscores"});
+    } else if (!response.data.available) {
+      setErrors({...errors, username: "This username is already used."});
     } else {
       setErrors({...errors, username: null});
     }
   };
 
-  const validateEmail = (email: string) => {
+  const validateEmail = async (email: string) => {
     setFormData({...formData, email: email});
+
+    const response = await axios.get(
+      "http://localhost:8000/api/users/check-email/",
+      {
+        params: {
+          email: email,
+        },
+      }
+    );
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setErrors({...errors, email: "Please enter a valid email."});
+    } else if (!response.data.available) {
+      setErrors({...errors, email: "This email is not available to use."});
     } else {
       setErrors({...errors, email: null});
     }
