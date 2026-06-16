@@ -54,7 +54,14 @@ const RegisterPage = () => {
         last_name: formData.lastName,
         password: formData.password1,
       });
-      alert("Success!!!!!!")
+
+      if (response.status === 201) {
+        login({
+          email: formData.email || "",
+          password: formData.password1 || "",
+        });
+        redirect("/");
+      }
     } catch (error) {
       if (axios.isAxiosError(error)) {
         setFinalError(true);
