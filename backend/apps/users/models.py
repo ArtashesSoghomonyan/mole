@@ -1,3 +1,5 @@
+import uuid
+
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
@@ -131,6 +133,11 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.is_admin
 
 
+def avatar_upload_path(instance, filename):
+    extension = filename.split(".")[-1]
+    return f"avatars/{uuid.uuid4()}.{extension}"
+
+
 class Profile(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
@@ -138,7 +145,7 @@ class Profile(models.Model):
         related_name="profile",
     )
     avatar = models.ImageField(
-        upload_to="avatars/", null=True, blank=True,
+        upload_to=avatar_upload_path, null=True, blank=True,
     )
     bio = models.TextField(
         null=True,

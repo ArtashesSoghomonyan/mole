@@ -1,14 +1,15 @@
 from django.contrib.auth import get_user_model, login, logout
 from rest_framework import status
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 
-from .models import DeletedUserEmail
+from .models import DeletedUserEmail, Profile
 from .permissions import IsAnonymous
-from .serializers import RegisterSerializer, UserSerializer
+from .serializers import ProfileSerializer, RegisterSerializer, UserSerializer
 
 
 class BrowserCompatibleTokenObtainPairView(TokenObtainPairView):
@@ -49,8 +50,21 @@ class RegisterView(APIView):
         serializer = RegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
+        Profile.objects.create(user=user)
         result = UserSerializer(user).data
         return Response(result, status=status.HTTP_201_CREATED)
+
+
+class ProfileUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [JSONParser, MultiPartParser, FormParser]
+
+    def patch(self, request):
+        profile = Profile.objects.get(user=request.user)
+        serializer = ProfileSerializer(profile, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class CheckUsernameView(APIView):
