@@ -16,6 +16,8 @@ type FormValues = {
   password2: string | null
 }
 
+const forbiddenUsernames = ["register"];
+
 const RegisterPage = () => {
   const { user, loading, login } = useAuth();
 
@@ -86,6 +88,7 @@ const RegisterPage = () => {
       setErrors({...errors, username: "Username can have less than 50 characters."});
     } else if (!/^[a-z_]+$/.test(username)) {
       setErrors({...errors, username: "Username can only contain english letters and underscores"});
+    } else if (forbiddenUsernames.includes(username)) {
     } else if (!response.data.available) {
       setErrors({...errors, username: "This username is already used."});
     } else {

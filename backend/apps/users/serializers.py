@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
-from .models import DeletedUserEmail, Profile
+from .models import DeletedUserEmail, FORBIDDEN_USERNAMES, Profile
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -43,6 +43,10 @@ class RegisterSerializer(serializers.Serializer):
         if not re.fullmatch(r"[a-z_]+", value):
             raise serializers.ValidationError(
                 "Username must be lowercase letters or underscores only"
+            )
+        if value in FORBIDDEN_USERNAMES:
+            raise serializers.ValidationError(
+                "Username is not available"
             )
         return value
 

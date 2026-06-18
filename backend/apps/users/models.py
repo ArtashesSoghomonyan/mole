@@ -12,6 +12,17 @@ username_validator = RegexValidator(
     regex=r"^[a-z_]+$", message="Username must be lowercase or underscore only."
 )
 
+FORBIDDEN_USERNAMES = [
+    "register",
+]
+
+def validate_username_not_forbidden(value):
+    if value.lower() in FORBIDDEN_USERNAMES:
+        raise ValidationError(
+            "This username is not allowed.",
+            code="forbidden_username",
+        )
+
 
 def deleted_email_validator(value: str):
     if DeletedUserEmail.objects.filter(email=value).exists():
@@ -67,7 +78,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(
         verbose_name="username",
         max_length=50,
-        validators=[username_validator],
+        validators=[username_validator, validate_username_not_forbidden],
         unique=True,
         null=False,
         blank=False,
