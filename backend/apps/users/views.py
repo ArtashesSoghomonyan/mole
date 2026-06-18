@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model, login, logout
+from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.permissions import IsAuthenticated
@@ -9,7 +10,21 @@ from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 
 from .models import DeletedUserEmail, Profile
 from .permissions import IsAnonymous
-from .serializers import ProfileSerializer, RegisterSerializer, UserSerializer
+from .serializers import (
+    ProfileSerializer,
+    RegisterSerializer,
+    SearchUserSerializer,
+    UserSerializer,
+)
+
+
+class UserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, username):
+        user = get_object_or_404(get_user_model(), username=username)
+        serializer = SearchUserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class BrowserCompatibleTokenObtainPairView(TokenObtainPairView):

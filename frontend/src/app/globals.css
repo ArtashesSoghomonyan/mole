@@ -98,6 +98,11 @@ body {
   min-height: 100vh;
 }
 
+.flex {
+  display: flex;
+  gap: var(--size-4)
+}
+
 /* UI elements */
 
 input[type="text"],
@@ -147,7 +152,18 @@ input[type="password"]:focus {
   background-color: var(--primary-30);
 }
 
-.btn-filled:active {
+.btn-filled-secondary {
+  background-color: var(--secondary-50);
+  color: var(--theme);
+  border: 0;
+}
+
+.btn-filled:hover {
+  background-color: var(--secondary-30);
+}
+
+.btn-filled:active,
+.btn-filled-secondary:active {
   transform: translateY(1px);
 }
 
@@ -162,6 +178,18 @@ input[type="password"]:focus {
   border-color: var(--primary-70);
 }
 
-.btn-outlined:active {
+.btn-outlined-secondary {
+  background-color: transparent;
+  color: var(--color-5);
+  border: var(--size-0) solid var(--secondary-50);
+}
+
+.btn-outlined-secondary:hover {
+  background-color: var(--secondary-70);
+  border-color: var(--secondary-70);
+}
+
+.btn-outlined:active,
+.btn-outlined-secondary:active {
   transform: translateY(1px);
 }

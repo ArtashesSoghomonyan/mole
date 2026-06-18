@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import axios from "axios";
 
 import { useAuth } from "@/context/AuthContext";
@@ -16,7 +17,7 @@ type FormValues = {
   password2: string | null
 }
 
-const forbiddenUsernames = ["register"];
+const forbiddenUsernames = ["register", "profile"];
 
 const RegisterPage = () => {
   const { user, loading, login } = useAuth();
@@ -145,6 +146,7 @@ const RegisterPage = () => {
     } else if (/^\d+$/.test(password1)) {
       setErrors({...errors, password1: "Password cannot be entirely numeric."});
     } else if ([formData.username, formData.firstName, formData.lastName, formData.email]
+      .filter((v): v is string => v !== null)
       .some(v => password1.toLowerCase().includes(v.toLowerCase()))) {
       setErrors({...errors, password1: "Password is too similar to your personal information."})
     } else {
@@ -234,6 +236,7 @@ const RegisterPage = () => {
         required
         />
       <input type="submit" value="Register" className="btn btn-filled" />
+      <p>Already have an account? <Link href="/">Log in!</Link></p>
     </form>
   </>;
 }

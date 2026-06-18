@@ -1,26 +1,24 @@
-.registration-form {
+.login-form {
   background-color: var(--theme);
   padding: var(--size-4);
+  padding-top: var(--size-8);
+  padding-bottom: var(--size-8);
   margin: 0 auto;
   margin-top: var(--size-4);
   display: flex;
   flex-direction: column;
   width: 500px;
   align-items: center;
-  gap: var(--size-0);
+  gap: var(--size-3);
   user-select: none;
 }
 
 @media (max-width: 600px) {
-  .registration-form {
+  .login-form {
     width: 90%;
   }
 }
 
-.registration-form label {
-  font-size: var(--size-4);
-}
-
-.registration-form .error {
+.error {
   color: red;
 }

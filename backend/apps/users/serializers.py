@@ -21,6 +21,14 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ["id", "username", "email", "first_name", "last_name", "profile"]
 
 
+class SearchUserSerializer(serializers.ModelSerializer):
+    profile = ProfileSerializer(read_only=True)
+
+    class Meta:
+        model = get_user_model()
+        fields = ["username", "first_name", "last_name", "profile"]
+
+
 class RegisterSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
     username = serializers.CharField(required=True, max_length=50)

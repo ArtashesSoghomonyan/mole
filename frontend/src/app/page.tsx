@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import Link from "next/link"
+
+import "./style.css";
 
 export default function Home() {
   const { user, loading, login, logout } = useAuth();
@@ -28,9 +31,9 @@ export default function Home() {
   if (!user) {
     return (
       <>
-        <h1>Login</h1>
-        <form onSubmit={handleLogin}>
-          {loginFail && <p>Wrong credentials!</p>}
+        <form onSubmit={handleLogin} className="login-form">
+          <h1>Log into mole </h1>
+          {loginFail && <p className="error">Wrong credentials!</p>}
           <input
             type="email"
             name="email"
@@ -46,8 +49,10 @@ export default function Home() {
           <input
             type="submit"
             value="Login"
+            className="btn btn-outlined-secondary"
             disabled={!loginEmail || !loginPassword}
           />
+          <p>Need an account? <Link href="/register">Sign up now!</Link></p>
         </form>
       </>
     );

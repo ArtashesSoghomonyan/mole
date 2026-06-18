@@ -9,3 +9,13 @@ export type User = {
     bio: string | null,
   }
 }
+
+export type SearchUser = {
+  username: string,
+  first_name: string,
+  last_name: string,
+  profile: {
+    avatar: string | null,
+    bio: string | null,
+  }
+}

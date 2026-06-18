@@ -120,12 +120,6 @@ class ProfileTests(APITestCase):
 
         self.client.force_authenticate(user=user)
 
-        avatar = SimpleUploadedFile(
-            "avatar.jpg",
-            b"fake-image-content",
-            content_type="image/jpeg"
-        )
-
         bio = "new bio test"
 
         with open("test_data/dog.jpg", "rb") as photo:
