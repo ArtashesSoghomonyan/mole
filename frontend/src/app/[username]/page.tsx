@@ -2,6 +2,7 @@
 
 import { use, useEffect, useState } from "react";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import axios from "axios";
 
 import { useAuth } from "@/context/AuthContext";
@@ -63,7 +64,7 @@ const UserPage = ({
             <h3>17 following</h3>
           </div>
           {user.username === searchUser?.username
-            ? <input type="button" value="Edit Profile" className="btn btn-outlined-secondary" />
+            ? <Link href="/profile"><input type="button" value="Edit Profile" className="btn btn-outlined-secondary" /></Link>
             : <input type="button" value="Follow" className="btn btn-outlined-secondary" />}
         </div>
       </div>

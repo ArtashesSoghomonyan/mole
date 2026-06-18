@@ -103,6 +103,10 @@ body {
   gap: var(--size-4)
 }
 
+.no-select {
+  user-select: none;
+}
+
 /* UI elements */
 
 input[type="text"],
@@ -158,7 +162,7 @@ input[type="password"]:focus {
   border: 0;
 }
 
-.btn-filled:hover {
+.btn-filled-secondary:hover {
   background-color: var(--secondary-30);
 }
 
