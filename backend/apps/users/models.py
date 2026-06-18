@@ -156,6 +156,12 @@ class Profile(models.Model):
         on_delete=models.CASCADE,
         related_name="profile",
     )
+    following = models.ManyToManyField(
+        "self",
+        through="Follow",
+        symmetrical=False,
+        related_name="followers",
+    )
     avatar = models.ImageField(
         upload_to=avatar_upload_path, null=True, blank=True,
     )
@@ -166,3 +172,12 @@ class Profile(models.Model):
 
     def __str__(self):
         return f"{self.user.username}'s profile"
+
+
+class Follow(models.Model):
+    user_from = models.ForeignKey(get_user_model(), related_name="following_set", on_delete=models.CASCADE)
+    user_to = models.ForeignKey(get_user_model(), related_name="follower_set", on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("user_from", "user_to")

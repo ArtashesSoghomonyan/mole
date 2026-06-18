@@ -54,7 +54,10 @@ const Navbar = () => {
           <FaRegBell />
         </a></li>
         <li><a href="#" className="profile-link" title="Profile">
-          <img src="/person.jpg" alt="Profile" className="nav-avatar" />
+          <img src={ user.profile.avatar
+            ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${user.profile.avatar}/`
+            : "/person.jpg" }
+            alt="Profile" className="nav-avatar" />
         </a></li>
       </ul>
     </div>

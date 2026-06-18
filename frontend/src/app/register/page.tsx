@@ -90,6 +90,7 @@ const RegisterPage = () => {
     } else if (!/^[a-z_]+$/.test(username)) {
       setErrors({...errors, username: "Username can only contain english letters and underscores"});
     } else if (forbiddenUsernames.includes(username)) {
+      setErrors({...errors, username: "This username is not allowed."});
     } else if (!response.data.available) {
       setErrors({...errors, username: "This username is already used."});
     } else {

@@ -8,9 +8,10 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 
-from .models import DeletedUserEmail, Profile
+from .models import DeletedUserEmail, Follow, Profile
 from .permissions import IsAnonymous
 from .serializers import (
+    FollowSerializer,
     ProfileSerializer,
     RegisterSerializer,
     SearchUserSerializer,
@@ -107,3 +108,49 @@ class CheckEmailView(APIView):
         return Response({
             "available": True,
         })
+
+
+class FollowView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, username):
+        """Follow a user"""
+        target_user = get_object_or_404(get_user_model(), username=username)
+
+        if target_user == request.user:
+            return Response(
+                {"detail": "You cannot follow yourself."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        follow, created = Follow.objects.get_or_create(
+            user_from=request.user,
+            user_to=target_user,
+        )
+
+        if not created:
+            return Response(
+                {"detail": f"You are already following {username}."},
+                status=status.HTTP_409_CONFLICT,
+            )
+
+        serializer = FollowSerializer(follow)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def delete(self, request, username):
+        """Unfollow a user"""
+        target_user = get_object_or_404(get_user_model(), username=username)
+
+        deleted, _ = Follow.objects.filter(
+            user_from=request.user,
+            user_to=target_user,
+        ).delete()
+
+        if not deleted:
+            return Response(
+                {"detail": f"You are not following {username}."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+

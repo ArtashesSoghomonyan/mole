@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
-from .models import DeletedUserEmail, FORBIDDEN_USERNAMES, Profile
+from .models import DeletedUserEmail, Follow, FORBIDDEN_USERNAMES, Profile
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -72,3 +72,11 @@ class RegisterSerializer(serializers.Serializer):
         password = validated_data.pop("password")
         user = get_user_model().objects.create_user(password=password, **validated_data)
         return user
+
+
+class FollowSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Follow
+        fields = ["id", "user_from", "user_to", "created_at"]
+        read_only_fields = ["id", "user_from", "created_at"]
+
