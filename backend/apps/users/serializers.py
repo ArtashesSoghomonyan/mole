@@ -18,15 +18,42 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = get_user_model()
-        fields = ["id", "username", "email", "first_name", "last_name", "profile"]
+        fields = [
+            "id",
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "profile",
+            "followers_count",
+            "following_count",
+        ]
 
 
 class SearchUserSerializer(serializers.ModelSerializer):
     profile = ProfileSerializer(read_only=True)
+    is_following = serializers.SerializerMethodField()
 
     class Meta:
         model = get_user_model()
-        fields = ["username", "first_name", "last_name", "profile"]
+        fields = [
+            "username",
+            "first_name",
+            "last_name",
+            "profile",
+            "followers_count",
+            "following_count",
+            "is_following",
+        ]
+
+    def get_is_following(self, obj):
+        request = self.context.get("request")
+        if request and request.user.is_authenticated:
+            return Follow.objects.filter(
+                user_from=request.user,
+                user_to=obj,
+            ).exists()
+        return False
 
 
 class RegisterSerializer(serializers.Serializer):

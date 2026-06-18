@@ -144,6 +144,15 @@ class User(AbstractBaseUser, PermissionsMixin):
     def has_module_perms(self, app_label):
         return self.is_admin
 
+    @property
+    def followers_count(self):
+        return self.follower_set.count()
+
+    @property
+    def following_count(self):
+        return self.following_set.count()
+
+
 
 def avatar_upload_path(instance, filename):
     extension = filename.split(".")[-1]

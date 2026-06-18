@@ -24,7 +24,7 @@ class UserView(APIView):
 
     def get(self, request, username):
         user = get_object_or_404(get_user_model(), username=username)
-        serializer = SearchUserSerializer(user)
+        serializer = SearchUserSerializer(user, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
