@@ -15,3 +15,6 @@ wheels/
 # SQLite
 *.db
 *.sqlite3
+
+# Media files
+media/
