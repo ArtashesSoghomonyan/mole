@@ -5,15 +5,15 @@ import { redirect } from "next/navigation";
 import { FormEvent, useState } from "react";
 import axios from "axios";
 
+import AvatarCropper from "@/components/AvatarCropper";
 import "./style.css";
 
 const ProfilePage = () => {
   const { user, loading } = useAuth();
   const [bio, setBio] = useState(user?.profile.bio || "");
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [avatarBlob, setAvatarBlob] = useState<Blob | null>(null);
 
   if (loading) {
     return <h1>Loading...</h1>;
@@ -23,17 +23,8 @@ const ProfilePage = () => {
     redirect("/");
   }
 
-  const currentAvatar = avatarPreview
-    || (user.profile.avatar
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${user.profile.avatar}`
-      : "/person.jpg");
-
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setAvatarFile(file);
-    setAvatarPreview(URL.createObjectURL(file));
+  const handleAvatarCrop = (blob: Blob | null) => {
+    setAvatarBlob(blob);
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -46,8 +37,9 @@ const ProfilePage = () => {
 
     const formData = new FormData();
     formData.append("bio", bio);
-    if (avatarFile) {
-      formData.append("avatar", avatarFile);
+
+    if (avatarBlob) {
+      formData.append("avatar", avatarBlob, "avatar.jpg");
     }
 
     try {
@@ -62,6 +54,7 @@ const ProfilePage = () => {
         }
       );
       setMessage({ type: "success", text: "Profile updated successfully!" });
+      setAvatarBlob(null);
     } catch (error) {
       setMessage({ type: "error", text: "Failed to update profile. Please try again." });
       console.error("Profile update failed:", error);
@@ -81,17 +74,12 @@ const ProfilePage = () => {
       )}
 
       <div className="avatar-bar">
-        <img className="avatar" src={currentAvatar} alt="Avatar" />
-        <label htmlFor="avatar-upload" className="btn btn-outlined-secondary">
-          Change photo
-        </label>
-        <input
-          type="file"
-          id="avatar-upload"
-          className="hidden"
-          accept="image/*"
-          onChange={handleAvatarChange}
-        />
+        <img className="avatar" src={
+          user.profile?.avatar
+          ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${user.profile?.avatar}/`
+          : "/person.jpg"
+        } alt="Avatar" />
+        <AvatarCropper onCropComplete={handleAvatarCrop} />
       </div>
 
       <label htmlFor="bio">Bio:</label>

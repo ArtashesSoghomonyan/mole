@@ -93,7 +93,7 @@ const UserPage = ({
             ? <Link href="/profile"><input type="button" value="Edit Profile" className="btn btn-outlined-secondary" /></Link>
             : <input
                 type="button"
-                value={isFollowing ? "Following" : "Unfollow"}
+                value={isFollowing ? "Unfollow" : "Follow"}
                 className={isFollowing ? "btn btn-filled-secondary" : "btn btn-outlined-secondary"}
                 onClick={handleFollowToggle}
               />}
