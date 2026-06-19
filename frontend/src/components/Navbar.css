@@ -67,6 +67,109 @@
   border-color: var(--secondary-50);
 }
 
+.navbar .profile-menu-container {
+  position: relative;
+  display: inline-block;
+}
+
+.navbar .profile-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.navbar .profile-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 220px;
+  background-color: var(--app-surface);
+  border: 1px solid var(--color-3);
+  border-radius: var(--size-1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  overflow: hidden;
+}
+
+.navbar .dropdown-header {
+  display: flex;
+  align-items: center;
+  gap: var(--size-2);
+  padding: var(--size-3);
+}
+
+.navbar .dropdown-avatar {
+  width: var(--size-6);
+  height: var(--size-6);
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.navbar .dropdown-user-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.navbar .dropdown-username {
+  font-weight: 600;
+  font-size: var(--size-3);
+  color: var(--app-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.navbar .dropdown-email {
+  font-size: var(--size-2);
+  color: var(--color-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.navbar .dropdown-divider {
+  height: 1px;
+  background-color: var(--color-2);
+}
+
+.navbar .dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: var(--size-2);
+  padding: var(--size-2) var(--size-3);
+  font-size: var(--size-3);
+  color: var(--app-text);
+  text-decoration: none;
+  cursor: pointer;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  transition: background-color 0.15s ease;
+}
+
+.navbar .dropdown-item:hover {
+  background-color: var(--color-1);
+}
+
+.navbar .dropdown-item svg {
+  width: var(--size-4);
+  height: var(--size-4);
+  color: var(--color-3);
+}
+
+.navbar .dropdown-logout {
+  color: var(--primary-50);
+}
+
+.navbar .dropdown-logout svg {
+  color: var(--primary-50);
+}
+
 .navbar .menu-button {
   display: none;
   width: var(--size-5);
