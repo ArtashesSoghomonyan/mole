@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model, login, logout
 from django.shortcuts import get_object_or_404
-from rest_framework import status
+from rest_framework import filters, generics, status
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -154,3 +154,9 @@ class FollowView(APIView):
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
+class UserSearchView(generics.ListAPIView):
+    queryset = get_user_model().objects.all()
+    serializer_class = SearchUserSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["username", "profile__bio"]

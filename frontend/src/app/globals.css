@@ -144,6 +144,7 @@ input[type="password"]:focus {
   border-radius: var(--size-1);
   cursor: pointer;
   transition: all 0.2s ease;
+  user-select: none;
 }
 
 .btn-filled {

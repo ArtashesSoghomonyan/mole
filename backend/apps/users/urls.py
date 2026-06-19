@@ -13,5 +13,6 @@ urlpatterns = [
     path("profile/", views.ProfileUpdateView.as_view(), name="profile"),
     path("refresh/", TokenRefreshView.as_view(), name="refresh"),
     path("register/", views.RegisterView.as_view(), name="register"),
+    path("search/", views.UserSearchView.as_view(), name="search_user"),
     path("<slug:username>/", views.UserView.as_view(), name="user"),
 ]

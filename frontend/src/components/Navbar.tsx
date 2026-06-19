@@ -10,6 +10,7 @@ import { FiLogOut, FiUser, FiSettings } from "react-icons/fi";
 import "./Navbar.css";
 import { useAuth } from "@/context/AuthContext";
 import ThemeToggle from "@/components/ThemeToggle";
+import SearchBar from "@/components/SearchBar";
 
 const Navbar = () => {
   const { user, loading, logout } = useAuth();
@@ -56,7 +57,7 @@ const Navbar = () => {
 
     <div className={menuOpen ? "nav-menu open" : "nav-menu"}>
       <div className="nav-search">
-        <input type="text" placeholder="Search" />
+        <SearchBar />
       </div>
 
       <ul className="nav-links">

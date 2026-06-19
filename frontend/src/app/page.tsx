@@ -59,7 +59,6 @@ export default function Home() {
   }
 
   return <>
-    Hello {user.username}
-    <button onClick={logout}>Logout</button>
+
   </>;
 }

@@ -1,0 +1,187 @@
+.search-container {
+  position: relative;
+  width: min(36vw, 360px);
+}
+
+.search-container .search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-container .search-input-wrapper input {
+  width: 100%;
+  padding: var(--size-2) var(--size-3);
+  padding-left: var(--size-6);
+  font-size: var(--size-3);
+  border: 1px solid var(--color-3);
+  border-radius: var(--size-6);
+  background-color: var(--color-1);
+  color: var(--color-5);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-container .search-input-wrapper input::placeholder {
+  color: #9ca3af;
+}
+
+.search-container .search-input-wrapper input:focus {
+  border-color: var(--secondary-50);
+  box-shadow: 0 0 0 3px var(--secondary-70);
+}
+
+.search-container .search-icon {
+  position: absolute;
+  left: var(--size-2);
+  width: var(--size-4);
+  height: var(--size-4);
+  color: var(--color-3);
+  pointer-events: none;
+}
+
+.search-container .search-clear {
+  position: absolute;
+  right: var(--size-2);
+  width: var(--size-4);
+  height: var(--size-4);
+  color: var(--color-3);
+  cursor: pointer;
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: 50%;
+  transition: color 0.2s ease;
+}
+
+.search-container .search-clear:hover {
+  color: var(--color-5);
+}
+
+.search-container .search-results {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 100%;
+  max-height: 400px;
+  overflow-y: auto;
+  background-color: var(--app-surface);
+  border: 1px solid var(--color-3);
+  border-radius: var(--size-1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  z-index: 200;
+}
+
+.search-container .search-results::-webkit-scrollbar {
+  width: 6px;
+}
+
+.search-container .search-results::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.search-container .search-results::-webkit-scrollbar-thumb {
+  background-color: var(--color-3);
+  border-radius: 3px;
+}
+
+.search-container .search-result-item {
+  display: flex;
+  align-items: center;
+  gap: var(--size-2);
+  padding: var(--size-2) var(--size-3);
+  text-decoration: none;
+  color: var(--app-text);
+  transition: background-color 0.15s ease;
+  cursor: pointer;
+}
+
+.search-container .search-result-item:hover {
+  background-color: var(--color-1);
+}
+
+.search-container .search-result-avatar {
+  width: var(--size-6);
+  height: var(--size-6);
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.search-container .search-result-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.search-container .search-result-name {
+  font-weight: 600;
+  font-size: var(--size-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search-container .search-result-username {
+  font-size: var(--size-2);
+  color: var(--color-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search-container .search-result-bio {
+  font-size: var(--size-2);
+  color: var(--color-4);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+
+.search-container .search-result-followers {
+  font-size: var(--size-1);
+  color: var(--color-3);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.search-container .search-no-results {
+  padding: var(--size-4) var(--size-3);
+  text-align: center;
+  color: var(--color-3);
+  font-size: var(--size-3);
+}
+
+.search-container .search-loading {
+  padding: var(--size-4) var(--size-3);
+  text-align: center;
+  color: var(--color-3);
+  font-size: var(--size-3);
+}
+
+.search-container .search-error {
+  padding: var(--size-4) var(--size-3);
+  text-align: center;
+  color: var(--primary-50);
+  font-size: var(--size-3);
+}
+
+@media (max-width: 700px) {
+  .search-container {
+    width: 100%;
+  }
+
+  .search-container .search-results {
+    position: static;
+    box-shadow: none;
+    border: 1px solid var(--color-3);
+    border-radius: var(--size-1);
+    margin-top: var(--size-1);
+    max-height: 300px;
+  }
+}
