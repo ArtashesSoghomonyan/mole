@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import axios from "axios";
@@ -42,6 +42,9 @@ const RegisterPage = () => {
     password2: "",
   });
 
+  const usernameTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const emailTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -70,53 +73,84 @@ const RegisterPage = () => {
         setFinalError(true);
       }
     }
-
   }
 
-  const validateUsername = async (username: string) => {
+  const validateUsername = (username: string) => {
     setFormData({...formData, username: username});
-
-    const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/users/check-username/`,
-      {
-        params: {
-          username: username,
-        },
-      }
-    );
 
     if (!(username.length >= 1 && username.length <= 50)) {
       setErrors({...errors, username: "Username can have less than 50 characters."});
+      return;
     } else if (!/^[a-z_]+$/.test(username)) {
       setErrors({...errors, username: "Username can only contain english letters and underscores"});
+      return;
     } else if (forbiddenUsernames.includes(username)) {
       setErrors({...errors, username: "This username is not allowed."});
-    } else if (!response.data.available) {
-      setErrors({...errors, username: "This username is already used."});
-    } else {
-      setErrors({...errors, username: null});
+      return;
     }
+
+    // Cancel the previous pending API call
+    if (usernameTimeoutRef.current) {
+      clearTimeout(usernameTimeoutRef.current);
+    }
+
+    // Debounce: wait 1 second after the user stops typing before calling the API
+    usernameTimeoutRef.current = setTimeout(async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/users/check-username/`,
+          {
+            params: {
+              username: username,
+            },
+          }
+        );
+
+        if (!response.data.available) {
+          setErrors({...errors, username: "This username is already used."});
+        } else {
+          setErrors({...errors, username: null});
+        }
+      } catch {
+        setErrors({...errors, username: "Could not check username availability."});
+      }
+    }, 1000);
   };
 
-  const validateEmail = async (email: string) => {
+  const validateEmail = (email: string) => {
     setFormData({...formData, email: email});
-
-    const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/users/check-email/`,
-      {
-        params: {
-          email: email,
-        },
-      }
-    );
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setErrors({...errors, email: "Please enter a valid email."});
-    } else if (!response.data.available) {
-      setErrors({...errors, email: "This email is not available to use."});
-    } else {
-      setErrors({...errors, email: null});
+      return;
     }
+
+    // Cancel the previous pending API call
+    if (emailTimeoutRef.current) {
+      clearTimeout(emailTimeoutRef.current);
+    }
+
+    // Debounce: wait 1 second after the user stops typing before calling the API
+    emailTimeoutRef.current = setTimeout(async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/users/check-email/`,
+          {
+            params: {
+              email: email,
+            },
+          }
+        );
+
+        if (!response.data.available) {
+          setErrors({...errors, email: "This email is not available to use."});
+        } else {
+          setErrors({...errors, email: null});
+        }
+      } catch {
+        setErrors({...errors, email: "Could not check email availability."});
+      }
+    }, 1000);
   }
 
   const validateFirstName = (firstName: string) => {
