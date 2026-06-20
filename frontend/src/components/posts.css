@@ -8,6 +8,10 @@
   border-radius: var(--size-2);
 }
 
+.post img {
+  user-select: none;
+}
+
 .post .post-header {
   display: flex;
   justify-content: space-between;
