@@ -4,7 +4,10 @@ from django.contrib import admin
 from django.urls import include, path
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.routers import DefaultRouter
 from rest_framework.views import APIView
+
+from apps.posts.views import PostViewSet
 
 
 class APIHealthView(APIView):
@@ -14,9 +17,15 @@ class APIHealthView(APIView):
         }, status=status.HTTP_200_OK)
 
 
+router = DefaultRouter()
+
+router.register("posts", PostViewSet, basename="posts")
+
+
 urlpatterns = [
-    path("api/users/", include(("apps.users.urls", "users"))),
     path("api/health/", APIHealthView.as_view(), name="api_health"),
+    path("api/posts", include(router.urls)),
+    path("api/users/", include(("apps.users.urls", "users"))),
 ]
 
 if settings.DEBUG:
