@@ -17,4 +17,5 @@ dependencies = [
 [dependency-groups]
 dev = [
     "django-extensions>=4.1",
+    "drf-spectacular>=0.29.0",
 ]

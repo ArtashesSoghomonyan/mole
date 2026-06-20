@@ -19,17 +19,29 @@ class APIHealthView(APIView):
 
 router = DefaultRouter()
 
-router.register("posts", PostViewSet, basename="posts")
+router.register("posts", PostViewSet, basename="post")
 
 
 urlpatterns = [
     path("api/health/", APIHealthView.as_view(), name="api_health"),
-    path("api/posts", include(router.urls)),
+    path("api/", include(router.urls)),
     path("api/users/", include(("apps.users.urls", "users"))),
 ]
 
 if settings.DEBUG:
+    from drf_spectacular.views import (
+        SpectacularAPIView,
+        SpectacularSwaggerView,
+        SpectacularRedocView
+    )
+
     urlpatterns.append(path("admin/", admin.site.urls))
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+    urlpatterns += [
+        path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+        path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema")),
+        path("api/redoc/", SpectacularRedocView.as_view(url_name="schema")),
+    ]
 else:
     urlpatterns.append(path(f"{settings.ADMIN_PATH}/", admin.site.urls))
