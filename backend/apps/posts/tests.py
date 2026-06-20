@@ -29,7 +29,7 @@ class PostTests(APITestCase):
         with open("test_data/dog.jpg", "rb") as photo:
             response = self.client.post(
                 reverse("post-list"),
-                {''
+                {
                     "post_type": "image",
                     "image": photo,
                     "description": "some description",

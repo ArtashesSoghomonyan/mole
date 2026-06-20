@@ -7,6 +7,9 @@ import axios from "axios";
 
 import { useAuth } from "@/context/AuthContext";
 import { SearchUser } from "@/types/auth";
+import { Post } from "@/types/posts";
+import TextPost from "@/components/TextPost";
+import ImagePost from "@/components/ImagePost";
 import "./style.css";
 
 const UserPage = ({
@@ -17,6 +20,7 @@ const UserPage = ({
   const { username } = use(params);
   const { user, loading } = useAuth();
   const [searchUser, setSearchUser] = useState<SearchUser | null>(null);
+  const [posts, setPosts] = useState<Post[] | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
 
@@ -27,8 +31,9 @@ const UserPage = ({
           headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
         });
 
-        setSearchUser(response.data);
-        setIsFollowing(response.data.is_following);
+        setSearchUser(response.data.user);
+        setPosts(response.data.posts);
+        setIsFollowing(response.data.user.is_following);
       } catch {
         setNotFound(true);
       }
@@ -100,6 +105,34 @@ const UserPage = ({
         </div>
       </div>
 
+      <div className="posts">{posts?.map((post) => {
+          if (post.post_type === "text") {
+            return <TextPost
+              isMine={post.author.username === user.username}
+              author={{
+                username: post.author.username,
+                first_name: post.author.first_name,
+                last_name: post.author.last_name,
+                profile_img: post.author.profile.avatar
+              }}
+              content={post.content.content}
+              key={post.content.post}
+            />;
+          } else if (post.post_type === "image") {
+            return <ImagePost
+              isMine={post.author.username === user.username}
+              author={{
+                username: post.author.username,
+                first_name: post.author.first_name,
+                last_name: post.author.last_name,
+                profile_img: post.author.profile.avatar
+              }}
+              image={post.content.image}
+              description={post.content.description}
+              key={post.content.post}
+            />;
+          }
+        })}</div>
     </div>
   )
 }

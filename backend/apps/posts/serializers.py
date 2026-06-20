@@ -1,10 +1,13 @@
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from .models import ImagePost, Post, TextPost
+from apps.users.serializers import SearchUserSerializer
 
 
 class PostSerializer(serializers.ModelSerializer):
     content = serializers.SerializerMethodField()
+    author = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
@@ -27,6 +30,9 @@ class PostSerializer(serializers.ModelSerializer):
             return ImagePostSerializer(
                 obj.image_content
             ).data
+
+    def get_author(self, obj):
+        return SearchUserSerializer(obj.author, context=self.context).data
 
 
 class TextPostSerializer(serializers.ModelSerializer):

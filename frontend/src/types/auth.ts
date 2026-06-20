@@ -1,3 +1,5 @@
+import Post from "@/types/posts";
+
 export type User = {
   id: number,
   username: string,
@@ -13,14 +15,17 @@ export type User = {
 }
 
 export type SearchUser = {
-  username: string,
-  first_name: string,
-  last_name: string,
-  followers_count: number,
-  following_count: number,
-  is_following: boolean,
-  profile: {
-    avatar: string | null,
-    bio: string | null,
-  }
+  user: {
+    username: string,
+    first_name: string,
+    last_name: string,
+    followers_count: number,
+    following_count: number,
+    is_following: boolean,
+    profile: {
+      avatar: string | null,
+      bio: string | null,
+    }
+  },
+  posts: Post[],
 }
