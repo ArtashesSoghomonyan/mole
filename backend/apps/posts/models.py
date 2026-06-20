@@ -1,3 +1,5 @@
+import uuid
+
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils import timezone
@@ -33,9 +35,14 @@ class TextPost(models.Model):
         return self.content
 
 
+def image_upload_path(instance, filename):
+    extension = filename.split(".")[-1]
+    return f"posts/images/{uuid.uuid4()}.{extension}"
+
+
 class ImagePost(models.Model):
     post = models.OneToOneField(Post, on_delete=models.CASCADE, related_name="image_content")
-    image = models.ImageField(upload_to="posts/images/")
+    image = models.ImageField(upload_to=image_upload_path)
     description = models.TextField(blank=True)
 
     def __str__(self):

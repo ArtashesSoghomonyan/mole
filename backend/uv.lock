@@ -169,6 +169,7 @@ dependencies = [
     { name = "django-cors-headers" },
     { name = "djangorestframework" },
     { name = "djangorestframework-simplejwt" },
+    { name = "drf-spectacular" },
     { name = "environs" },
     { name = "pillow" },
     { name = "psycopg2-binary" },
@@ -177,7 +178,6 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "django-extensions" },
-    { name = "drf-spectacular" },
 ]
 
 [package.metadata]
@@ -186,16 +186,14 @@ requires-dist = [
     { name = "django-cors-headers", specifier = ">=4.9.0" },
     { name = "djangorestframework", specifier = ">=3.17.1" },
     { name = "djangorestframework-simplejwt", specifier = ">=5.5.1" },
+    { name = "drf-spectacular", specifier = ">=0.29.0" },
     { name = "environs", specifier = ">=15.0.1" },
     { name = "pillow", specifier = ">=12.2.0" },
     { name = "psycopg2-binary", specifier = ">=2.9.12" },
 ]
 
 [package.metadata.requires-dev]
-dev = [
-    { name = "django-extensions", specifier = ">=4.1" },
-    { name = "drf-spectacular", specifier = ">=0.29.0" },
-]
+dev = [{ name = "django-extensions", specifier = ">=4.1" }]
 
 [[package]]
 name = "pillow"

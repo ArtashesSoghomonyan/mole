@@ -8,6 +8,8 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 
+from apps.posts.models import Post
+from apps.posts.serializers import PostSerializer
 from .models import DeletedUserEmail, Follow, Profile
 from .permissions import IsAnonymous
 from .serializers import (
@@ -24,8 +26,13 @@ class UserView(APIView):
 
     def get(self, request, username):
         user = get_object_or_404(get_user_model(), username=username)
-        serializer = SearchUserSerializer(user, context={"request": request})
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        posts = Post.objects.filter(author=user)
+        serializer_posts = PostSerializer(posts, many=True)
+        serializer_user = SearchUserSerializer(user, context={"request": request})
+        return Response({
+            "user": serializer_user.data,
+            "posts": serializer_posts.data,
+        }, status=status.HTTP_200_OK)
 
 
 class BrowserCompatibleTokenObtainPairView(TokenObtainPairView):
