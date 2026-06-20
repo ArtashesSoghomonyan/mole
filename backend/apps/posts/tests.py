@@ -12,6 +12,13 @@ class PostTests(APITestCase):
             "last_name": "Coleman",
             "password": "password1234!",
         })
+        self.client.post(reverse("users:register"), {
+            "email": "anotheruser@example.com",
+            "username": "anotheruser",
+            "first_name": "another",
+            "last_name": "user",
+            "password": "password1234!",
+        })
         self.client.post(reverse("users:login"), {
             "email": "test@example.com",
             "password": "password1234!",
@@ -60,3 +67,78 @@ class PostTests(APITestCase):
             list(reversed(new_posts))
         )
 
+    def test_post_update_success(self):
+        response_post_creation = self.client.post(reverse("post-list"), {
+            "post_type": "text",
+            "content": "Hello, world!",
+        })
+
+        response_patch = self.client.patch(reverse("post-detail",
+            kwargs={"pk": response_post_creation.data["id"]}), {
+                "post_type": "text",
+                "content": "UPDATED!!!",
+            }
+        )
+
+        self.assertEqual(response_patch.data["content"]["content"], "UPDATED!!!")
+        self.assertEqual(response_patch.status_code, status.HTTP_200_OK)
+
+    def test_post_update_fail(self):
+        response_post_creation = self.client.post(reverse("post-list"), {
+            "post_type": "text",
+            "content": "Hello, world!",
+        })
+
+        new_post_id = response_post_creation.data["id"]
+
+        self.client.post(reverse("users:login"), {
+            "email": "anotheruser@example.com",
+            "password": "password1234!",
+        })
+
+        response_patch = self.client.patch(reverse("post-detail",
+            kwargs={"pk": new_post_id}), {
+                "post_type": "text",
+                "content": "UPDATED!!!",
+            }
+        )
+
+        self.assertEqual(response_patch.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_post_delete_success(self):
+        response_post_creation = self.client.post(reverse("post-list"), {
+            "post_type": "text",
+            "content": "Hello, world!",
+        })
+
+        new_post_id = response_post_creation.data["id"]
+
+        response_delete = self.client.delete(reverse("post-detail",
+            kwargs={"pk": new_post_id}),
+        )
+
+        response_deleted = self.client.get(reverse("post-detail",
+            kwargs={"pk": new_post_id}),
+        )
+
+        self.assertEqual(response_deleted.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response_delete.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_post_delete_fail(self):
+        response_post_creation = self.client.post(reverse("post-list"), {
+            "post_type": "text",
+            "content": "Hello, world!",
+        })
+
+        new_post_id = response_post_creation.data["id"]
+
+        self.client.post(reverse("users:login"), {
+            "email": "anotheruser@example.com",
+            "password": "password1234!",
+        })
+
+        response_delete = self.client.delete(reverse("post-detail",
+            kwargs={"pk": new_post_id}),
+        )
+
+        self.assertEqual(response_delete.status_code, status.HTTP_403_FORBIDDEN)
