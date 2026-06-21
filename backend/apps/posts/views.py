@@ -79,11 +79,7 @@ class PostViewSet(viewsets.ViewSet):
             if description is not None:
                 post.image_content.description = description
 
-            image = request.FILES.get("image")
-            if image is not None:
-                post.image_content.image = image
-
-            if description is not None or image is not None:
+            if description is not None:
                 post.image_content.save()
 
         post.save()

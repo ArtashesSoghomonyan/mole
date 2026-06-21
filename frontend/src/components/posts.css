@@ -13,11 +13,29 @@
 }
 
 .post .post-header {
+  padding: var(--size-2);
+  border-bottom: 1px solid var(--color-3);
+}
+
+.post .post-header .line-1 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--size-2);
-  border-bottom: 1px solid var(--color-3);
+  margin-top: var(--size-1);
+}
+
+.post .post-header .line-2 {
+  display: flex;
+  gap: var(--size-4);
+  color: var(--color-3);
+  margin-top: var(--size-1);
+}
+
+@media (max-width: 550px) {
+  .post .post-header .line-2 {
+    flex-direction: column;
+    gap: var(--size-0);
+  }
 }
 
 .post .post-header .author-name {
@@ -43,6 +61,7 @@
   flex-direction: column;
   gap: var(--size-2);
   padding: var(--size-4);
+  cursor: pointer;
 }
 
 .post-body img {

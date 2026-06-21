@@ -109,6 +109,7 @@ const UserPage = ({
           if (post.post_type === "text") {
             return <TextPost
               isMine={post.author.username === user.username}
+              id={post.id}
               author={{
                 username: post.author.username,
                 first_name: post.author.first_name,
@@ -116,11 +117,14 @@ const UserPage = ({
                 profile_img: post.author.profile.avatar
               }}
               content={post.content.content}
+              created_at={post.created_at}
+              updated_at={post.updated_at}
               key={post.content.post}
             />;
           } else if (post.post_type === "image") {
             return <ImagePost
               isMine={post.author.username === user.username}
+              id={post.id}
               author={{
                 username: post.author.username,
                 first_name: post.author.first_name,
@@ -129,6 +133,8 @@ const UserPage = ({
               }}
               image={post.content.image}
               description={post.content.description}
+              created_at={post.created_at}
+              updated_at={post.updated_at}
               key={post.content.post}
             />;
           }

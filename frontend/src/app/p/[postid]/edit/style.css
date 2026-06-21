@@ -7,6 +7,19 @@
   padding: var(--size-5);
 }
 
+.container form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-3);
+}
+
+.container form textarea {
+  resize: none;
+  padding: var(--size-3);
+  height: var(--size-10);
+  font-family: inherit;
+}
+
 .container img {
   width: 100%;
 }
