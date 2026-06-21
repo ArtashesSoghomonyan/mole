@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/context/AuthContext";
 import { redirect } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 
 import AvatarCropper from "@/components/AvatarCropper";
@@ -27,7 +27,7 @@ const ProfilePage = () => {
     setAvatarBlob(blob);
   };
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     setMessage(null);
@@ -88,7 +88,9 @@ const ProfilePage = () => {
         id="bio"
         value={bio}
         onChange={(e) => setBio(e.target.value)}
-      />
+      >
+        {user?.profile.bio}
+      </textarea>
 
       <button type="submit" className="btn btn-filled" disabled={saving}>
         {saving ? "Saving..." : "Save"}

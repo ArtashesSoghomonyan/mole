@@ -208,6 +208,9 @@ const RegisterPage = () => {
   }
 
   return <>
+    <head>
+      <title>Mole - Register</title>
+    </head>
     <form onSubmit={handleSubmit} className="registration-form">
       <h1>Join our community!</h1>
       {finalError && <h2 className="error">Something went wrong try again.</h2>}

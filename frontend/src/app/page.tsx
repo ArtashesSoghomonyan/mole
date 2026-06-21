@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "@/context/AuthContext";
 import Link from "next/link"
 
+import { useAuth } from "@/context/AuthContext";
 import "./style.css";
+
 
 export default function Home() {
   const { user, loading, login, logout } = useAuth();
