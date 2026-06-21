@@ -67,6 +67,33 @@
   border-color: var(--secondary-50);
 }
 
+.navbar .create-menu-container {
+  position: relative;
+  display: inline-block;
+}
+
+.navbar .create-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.navbar .create-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 200px;
+  background-color: var(--app-surface);
+  border: 1px solid var(--color-3);
+  border-radius: var(--size-1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  overflow: hidden;
+}
+
 .navbar .profile-menu-container {
   position: relative;
   display: inline-block;
@@ -233,5 +260,10 @@
   .navbar .nav-avatar {
     width: var(--size-5);
     height: var(--size-5);
+  }
+
+  .navbar .create-dropdown {
+    right: auto;
+    left: 0;
   }
 }

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { AiOutlineMessage } from "react-icons/ai";
 import { FaRegBell } from "react-icons/fa";
-import { IoIosMenu } from "react-icons/io";
+import { IoIosMenu, IoMdAddCircleOutline } from "react-icons/io";
 import { FiLogOut, FiUser, FiSettings } from "react-icons/fi";
 
 import "./Navbar.css";
@@ -17,11 +17,16 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState<boolean>(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
+  const [createMenuOpen, setCreateMenuOpen] = useState<boolean>(false);
+  const createMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
         setProfileMenuOpen(false);
+      }
+      if (createMenuRef.current && !createMenuRef.current.contains(event.target as Node)) {
+        setCreateMenuOpen(false);
       }
     };
 
@@ -62,6 +67,33 @@ const Navbar = () => {
 
       <ul className="nav-links">
         <li><ThemeToggle /></li>
+        <li>
+          <div className="create-menu-container" ref={createMenuRef}>
+            <button
+              className="create-btn"
+              title="Create"
+              onClick={() => setCreateMenuOpen(!createMenuOpen)}
+            >
+              {/* <img src={ user.profile.avatar
+                ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${user.profile.avatar}/`
+                : "/person.jpg" }
+                alt="Profile" className="nav-avatar" /> */}
+              <IoMdAddCircleOutline />
+            </button>
+
+            {createMenuOpen && (
+              <div className="create-dropdown">
+                <div className="dropdown-divider"></div>
+                <Link href="/new/image" className="dropdown-item" onClick={() => setCreateMenuOpen(false)}>
+                  Create Image Post
+                </Link>
+                <Link href="/new/say" className="dropdown-item" onClick={() => setCreateMenuOpen(false)}>
+                  Create Text Post
+                </Link>
+              </div>
+            )}
+          </div>
+        </li>
         <li><a href="#" title="Messages">
           <AiOutlineMessage />
         </a></li>
