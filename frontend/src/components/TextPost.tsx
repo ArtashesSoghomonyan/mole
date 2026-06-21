@@ -1,5 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 import { DateFormat } from "@/utils";
 import "./posts.css";
@@ -18,8 +22,35 @@ const TextPost = ({isMine, id, author, content, created_at, updated_at}: {
   updated_at: string | null,
 }) => {
   const router = useRouter();
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleted, setDeleted] = useState(false);
 
-  return <div className="post">
+  useEffect(() => {
+    if (showDeleteModal) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [showDeleteModal]);
+
+  const handleDelete = async () => {
+    setDeleted(true);
+    setShowDeleteModal(false);
+    try {
+      const token = localStorage.getItem("accessToken");
+      await axios.delete(
+        `${process.env.NEXT_PUBLIC_API_URL}/posts/${id}/`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+    } catch (error) {
+      console.error("Failed to delete post:", error);
+    }
+  };
+
+  return <div className={`post${deleted ? " post-deleted" : ""}`}>
     <div className="post-header">
       <div className="line-1">
         <Link className="author-name" href={`/${author.username}/`}>
@@ -27,7 +58,7 @@ const TextPost = ({isMine, id, author, content, created_at, updated_at}: {
           <span>{author.first_name} {author.last_name}</span>
         </Link>
         <div className="options no-select">{isMine && <div>
-          <Link href={`/p/${id}/edit/`}>Edit</Link> | <Link href="#">Delete</Link>
+          <Link href={`/p/${id}/edit/`}>Edit</Link> | <a href="#" onClick={e => { e.preventDefault(); setShowDeleteModal(true); }}>Delete</a>
         </div>}</div>
       </div>
       <div className="line-2">
@@ -38,6 +69,18 @@ const TextPost = ({isMine, id, author, content, created_at, updated_at}: {
     <div className="post-body" onClick={() => router.push(`/p/${id}/`)}>
       <p onClick={e => e.stopPropagation()}>{content}</p>
     </div>
+
+    {showDeleteModal && (
+      <div className="delete-modal-overlay" onClick={() => setShowDeleteModal(false)}>
+        <div className="delete-modal" onClick={e => e.stopPropagation()}>
+          <p>Are you sure you want to delete this post?</p>
+          <div className="delete-modal-actions">
+            <button className="delete-modal-cancel" onClick={() => setShowDeleteModal(false)}>Cancel</button>
+            <button className="delete-modal-confirm" onClick={handleDelete}>Delete</button>
+          </div>
+        </div>
+      </div>
+    )}
   </div>
 }
 

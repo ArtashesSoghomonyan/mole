@@ -1,4 +1,5 @@
 .post {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--size-4);
@@ -66,4 +67,63 @@
 
 .post-body img {
   width: 100%;
+}
+
+.delete-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.delete-modal {
+  background: var(--color-1);
+  padding: var(--size-4);
+  border-radius: var(--size-2);
+  text-align: center;
+  max-width: 300px;
+  width: 90%;
+}
+
+.delete-modal p {
+  margin-bottom: var(--size-4);
+  color: var(--color-5);
+}
+
+.delete-modal-actions {
+  display: flex;
+  gap: var(--size-2);
+  justify-content: center;
+}
+
+.delete-modal-cancel,
+.delete-modal-confirm {
+  padding: var(--size-2) var(--size-4);
+  border: none;
+  border-radius: var(--size-1);
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.delete-modal-cancel {
+  background: var(--color-3);
+  color: var(--color-5);
+}
+
+.delete-modal-confirm {
+  background: #e74c3c;
+  color: #fff;
+}
+
+.delete-modal-cancel:disabled,
+.delete-modal-confirm:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.post-deleted {
+  display: none;
 }
