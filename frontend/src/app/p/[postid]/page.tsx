@@ -71,6 +71,8 @@ const PostDetailPage = ({
         content={post.content.content}
         created_at={post.created_at}
         updated_at={post.updated_at}
+        likes_count={post.likes_count}
+        is_liked={post.is_liked}
         key={post.content.post}
       />
     </div>;
@@ -89,6 +91,8 @@ const PostDetailPage = ({
         description={post.content.description}
         created_at={post.created_at}
         updated_at={post.updated_at}
+        likes_count={post.likes_count}
+        is_liked={post.is_liked}
         key={post.content.post}
       />
     </div>;

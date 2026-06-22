@@ -78,6 +78,10 @@
   font-size: var(--size-4);
 }
 
+.post .post-footer .liked {
+  color: var(--secondary-50)
+}
+
 
 .delete-modal-overlay {
   position: fixed;

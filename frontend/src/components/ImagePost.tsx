@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { FaRegHeart } from "react-icons/fa";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { FaRegComment } from "react-icons/fa";
 import { FaRegShareSquare } from "react-icons/fa";
 
@@ -12,7 +12,7 @@ import { DateFormat } from "@/utils";
 import CommentSection from "./CommentSection";
 import "./posts.css";
 
-const ImagePost = ({isMine, id, author, image, description, created_at, updated_at}: {
+const ImagePost = ({isMine, id, author, image, description, created_at, updated_at, likes_count, is_liked}: {
   isMine: boolean,
   id: number,
   author: {
@@ -25,12 +25,17 @@ const ImagePost = ({isMine, id, author, image, description, created_at, updated_
   description: string | null,
   created_at: string,
   updated_at: string | null,
+  likes_count: number,
+  is_liked: boolean,
 }) => {
   const router = useRouter();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleted, setDeleted] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [commentCount, setCommentCount] = useState(0);
+  const [liked, setLiked] = useState(is_liked);
+  const [likeCount, setLikeCount] = useState(likes_count);
+  const [likeLoading, setLikeLoading] = useState(false);
 
   useEffect(() => {
     if (showDeleteModal) {
@@ -57,6 +62,39 @@ const ImagePost = ({isMine, id, author, image, description, created_at, updated_
     }
   };
 
+  const handleLikeToggle = async () => {
+    if (likeLoading) return;
+    setLikeLoading(true);
+
+    const token = localStorage.getItem("accessToken");
+    if (!token) return;
+
+    const wasLiked = liked;
+    setLiked(!wasLiked);
+    setLikeCount(prev => wasLiked ? prev - 1 : prev + 1);
+
+    try {
+      if (wasLiked) {
+        await axios.delete(
+          `${process.env.NEXT_PUBLIC_API_URL}/posts/${id}/unlike/`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+      } else {
+        await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/posts/${id}/like/`,
+          {},
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+      }
+    } catch (error) {
+      setLiked(wasLiked);
+      setLikeCount(prev => wasLiked ? prev + 1 : prev - 1);
+      console.error("Failed to toggle like:", error);
+    } finally {
+      setLikeLoading(false);
+    }
+  };
+
   return <div className={`post${deleted ? " post-deleted" : ""}`}>
     <div className="post-header">
       <div className="line-1">
@@ -78,8 +116,11 @@ const ImagePost = ({isMine, id, author, image, description, created_at, updated_
       <p onClick={e => e.stopPropagation()}>{description || ""}</p>
     </div>
     <div className="post-footer">
-      <FaRegHeart className="icon" />
-      <span>52</span>
+      {liked
+        ? <FaHeart className="icon liked" onClick={handleLikeToggle} style={{ cursor: "pointer" }} />
+        : <FaRegHeart className="icon" onClick={handleLikeToggle} style={{ cursor: "pointer" }} />
+      }
+      <span>{likeCount}</span>
       <FaRegComment className="icon" onClick={() => setShowComments(!showComments)} style={{ cursor: "pointer" }} />
       <span>{commentCount}</span>
       <FaRegShareSquare className="icon" />

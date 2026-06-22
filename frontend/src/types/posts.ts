@@ -29,8 +29,12 @@ export type Post = {
   content: {
     id: number,
     post: number,
-    content: ImagePost | TextPost,
+    content: string,
+    image: string,
+    description: string | null,
   },
+  likes_count: number,
+  is_liked: boolean,
   created_at: string,
   updated_at: string | null,
 }
