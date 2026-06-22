@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from .models import ImagePost, Post, TextPost
+from .models import Comment, ImagePost, Post, TextPost
 from apps.users.serializers import SearchUserSerializer
 
 
@@ -45,3 +45,31 @@ class ImagePostSerializer(serializers.ModelSerializer):
     class Meta:
         model = ImagePost
         fields = ["id", "post", "image", "description"]
+
+
+class ReplySerializer(serializers.ModelSerializer):
+    author = SearchUserSerializer(read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = [
+            "id",
+            "author",
+            "text",
+            "created_at",
+        ]
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = SearchUserSerializer(read_only=True)
+    replies = ReplySerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = [
+            "id",
+            "author",
+            "text",
+            "created_at",
+            "replies",
+        ]

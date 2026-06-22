@@ -47,3 +47,49 @@ class ImagePost(models.Model):
 
     def __str__(self):
         return f"Image: {self.description}"
+
+
+class Comment(models.Model):
+    author = models.ForeignKey(
+        get_user_model(),
+        on_delete=models.CASCADE,
+        related_name="comments",
+    )
+
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        related_name="comments",
+    )
+
+    parent = models.ForeignKey(
+        "self",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="replies"
+    )
+
+    text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+
+    def __str__(self):
+        return self.text[:50]
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    @property
+    def is_reply(self):
+        return self.parent is not None
+
+    def save(self, *args, **kwargs):
+        if self.parent and self.parent.parent:
+            raise ValueError(
+                "Replies to replies are not allowed"
+            )
+        super().save(*args, **kwargs)
+
+    # top_comments = post.comments.filter(parent__isnull=True)
+    # comment.replies.all()

@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.routers import DefaultRouter
 from rest_framework.views import APIView
 
-from apps.posts.views import PostViewSet
+from apps.posts.views import CommentViewSet, PostViewSet
 
 
 class APIHealthView(APIView):
@@ -20,6 +20,7 @@ class APIHealthView(APIView):
 router = DefaultRouter()
 
 router.register("posts", PostViewSet, basename="post")
+router.register("comments", CommentViewSet, basename="comment")
 
 
 urlpatterns = [

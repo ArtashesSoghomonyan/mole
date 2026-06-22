@@ -3,8 +3,8 @@ from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from .models import ImagePost, Post, TextPost
-from .serializers import ImagePostSerializer, PostSerializer, TextPostSerializer
+from .models import Comment, ImagePost, Post, TextPost
+from .serializers import CommentSerializer, PostSerializer, ReplySerializer
 
 
 class PostViewSet(viewsets.ViewSet):
@@ -102,3 +102,98 @@ class PostViewSet(viewsets.ViewSet):
             {"detail": "Deleted successfully"},
             status=status.HTTP_204_NO_CONTENT,
         )
+
+
+class CommentViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request):
+        post_id = request.data.get("post")
+        parent_id = request.data.get("parent")
+        text = request.data.get("text")
+
+        if post_id is None:
+            return Response(
+                {"detail": "post_id is required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            post = Post.objects.get(pk=post_id)
+        except Post.DoesNotExist:
+            return Response(
+                {"detail": f"post with id:{post_id} is not found"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            if parent_id is not None:
+                parent = Comment.objects.get(pk=parent_id)
+            parent = None
+        except Comment.DoesNotExist:
+            return Response(
+                {"detail": f"comment with id:{parent_id} is not found"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if not text:
+            return Response(
+                {"detail": "text of comment can't be blank"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        comment = Comment.objects.create(
+            author=request.user,
+            post=post,
+            parent=parent,
+            text=text
+        )
+
+        serializer = CommentSerializer(comment)
+
+        return Response(
+            serializer.data,
+            status=status.HTTP_201_CREATED,
+        )
+
+    def list(self, request):
+        post_id = request.query_params.get("post")
+        parent_id = request.query_params.get("parent")
+
+        if not post_id:
+            return Response(
+                {"detail": "post query parameter is required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            Post.objects.get(pk=post_id)
+        except Post.DoesNotExist:
+            return Response(
+                {"detail": f"post with id:{post_id} is not found"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if parent_id is not None:
+            # Return replies for a specific comment
+            queryset = Comment.objects.filter(post=post_id, parent=parent_id)
+            serializer = ReplySerializer(queryset, many=True)
+        else:
+            # Return top-level comments
+            queryset = Comment.objects.filter(post=post_id, parent__isnull=True)
+            serializer = CommentSerializer(queryset, many=True)
+
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK,
+        )
+
+    def retrieve(self, request, pk=None):
+        comment = get_object_or_404(Comment, pk=pk)
+        serializer = CommentSerializer(comment)
+
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK,
+        )
+
