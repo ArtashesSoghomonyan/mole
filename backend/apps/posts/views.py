@@ -126,15 +126,15 @@ class CommentViewSet(viewsets.ViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        try:
-            if parent_id is not None:
+        parent = None
+        if parent_id is not None:
+            try:
                 parent = Comment.objects.get(pk=parent_id)
-            parent = None
-        except Comment.DoesNotExist:
-            return Response(
-                {"detail": f"comment with id:{parent_id} is not found"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            except Comment.DoesNotExist:
+                return Response(
+                    {"detail": f"comment with id:{parent_id} is not found"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
         if not text:
             return Response(
