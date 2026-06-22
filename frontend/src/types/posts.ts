@@ -34,3 +34,17 @@ export type Post = {
   created_at: string,
   updated_at: string | null,
 }
+
+
+export type Comment = {
+  id: number;
+  author: {
+    username: string;
+    first_name: string;
+    last_name: string;
+    profile_img: string;
+  };
+  text: string;
+  created_at: string;
+  replies?: Comment[];
+};

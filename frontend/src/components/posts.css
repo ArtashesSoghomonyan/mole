@@ -69,6 +69,16 @@
   width: 100%;
 }
 
+.post .post-footer {
+  padding: var(--size-2);
+  border-top: 1px solid var(--color-3);
+  display: flex;
+  align-items: center;
+  gap: var(--size-3);
+  font-size: var(--size-4);
+}
+
+
 .delete-modal-overlay {
   position: fixed;
   inset: 0;
@@ -126,4 +136,124 @@
 
 .post-deleted {
   display: none;
+}
+
+.comment-section {
+  padding: var(--size-3);
+}
+
+.comments-container {
+  margin-top: var(--size-3);
+}
+
+.comment-input-form,
+.reply-input-form {
+  display: flex;
+  gap: var(--size-2);
+  margin-bottom: var(--size-3);
+}
+
+.comment-input {
+  flex: 1;
+  padding: var(--size-2);
+  border: 1px solid var(--color-3);
+  border-radius: var(--size-1);
+  background: var(--color-1);
+  color: var(--color-5);
+  font-size: 0.9rem;
+}
+
+.comment-submit {
+  background: none;
+  border: none;
+  color: var(--color-5);
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.comment-submit:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.comments-loading,
+.comments-empty {
+  color: var(--color-3);
+  font-size: 0.9rem;
+  text-align: center;
+  padding: var(--size-3);
+}
+
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-3);
+}
+
+.comment {
+  padding: var(--size-2);
+  border: 1px solid var(--color-3);
+  border-radius: var(--size-1);
+}
+
+.comment.reply {
+  margin-left: var(--size-4);
+  border-color: var(--color-2);
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--size-1);
+}
+
+.comment-author {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--color-5);
+}
+
+.comment-time {
+  font-size: 0.75rem;
+  color: var(--color-3);
+}
+
+.comment-text {
+  font-size: 0.9rem;
+  color: var(--color-5);
+  margin: 0;
+}
+
+.comment-actions {
+  margin-top: var(--size-1);
+}
+
+.comment-reply-btn,
+.show-replies-btn {
+  background: none;
+  border: none;
+  color: var(--color-3);
+  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 0;
+}
+
+.comment-reply-btn:hover,
+.show-replies-btn:hover {
+  color: var(--color-5);
+}
+
+.show-replies-btn {
+  margin-top: var(--size-1);
+  display: block;
+}
+
+.replies {
+  margin-top: var(--size-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-2);
 }

@@ -4,8 +4,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { FaRegComment } from "react-icons/fa";
 
 import { DateFormat } from "@/utils";
+import CommentSection from "./CommentSection";
 import "./posts.css";
 
 const ImagePost = ({isMine, id, author, image, description, created_at, updated_at}: {
@@ -25,6 +27,8 @@ const ImagePost = ({isMine, id, author, image, description, created_at, updated_
   const router = useRouter();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleted, setDeleted] = useState(false);
+  const [showComments, setShowComments] = useState(false);
+  const [commentCount, setCommentCount] = useState(0);
 
   useEffect(() => {
     if (showDeleteModal) {
@@ -71,6 +75,12 @@ const ImagePost = ({isMine, id, author, image, description, created_at, updated_
       <img src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${image}`} onClick={e => e.stopPropagation()} />
       <p onClick={e => e.stopPropagation()}>{description || ""}</p>
     </div>
+    <div className="post-footer">
+      <FaRegComment className="icon" onClick={() => setShowComments(!showComments)} style={{ cursor: "pointer" }} />
+      <span>{commentCount}</span>
+    </div>
+
+    <CommentSection postId={id} showComments={showComments} onCommentCount={setCommentCount} />
 
     {showDeleteModal && (
       <div className="delete-modal-overlay" onClick={() => setShowDeleteModal(false)}>

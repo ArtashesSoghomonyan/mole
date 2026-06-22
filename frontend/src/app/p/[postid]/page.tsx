@@ -58,36 +58,40 @@ const PostDetailPage = ({
   }
 
   if (post.post_type === "text") {
-    return <div className="container"><TextPost
-      isMine={post.author.username === user.username}
-      id={post.id}
-      author={{
-        username: post.author.username,
-        first_name: post.author.first_name,
-        last_name: post.author.last_name,
-        profile_img: post.author.profile.avatar
-      }}
-      content={post.content.content}
-      created_at={post.created_at}
-      updated_at={post.updated_at}
-      key={post.content.post}
-    /></div>;
+    return <div className="container">
+      <TextPost
+        isMine={post.author.username === user.username}
+        id={post.id}
+        author={{
+          username: post.author.username,
+          first_name: post.author.first_name,
+          last_name: post.author.last_name,
+          profile_img: post.author.profile.avatar
+        }}
+        content={post.content.content}
+        created_at={post.created_at}
+        updated_at={post.updated_at}
+        key={post.content.post}
+      />
+    </div>;
   } else if (post.post_type === "image") {
-    return <div className="container"><ImagePost
-      isMine={post.author.username === user.username}
-      id={post.id}
-      author={{
-        username: post.author.username,
-        first_name: post.author.first_name,
-        last_name: post.author.last_name,
-        profile_img: post.author.profile.avatar
-      }}
-      image={post.content.image}
-      description={post.content.description}
-      created_at={post.created_at}
-      updated_at={post.updated_at}
-      key={post.content.post}
-    /></div>;
+    return <div className="container">
+      <ImagePost
+        isMine={post.author.username === user.username}
+        id={post.id}
+        author={{
+          username: post.author.username,
+          first_name: post.author.first_name,
+          last_name: post.author.last_name,
+          profile_img: post.author.profile.avatar
+        }}
+        image={post.content.image}
+        description={post.content.description}
+        created_at={post.created_at}
+        updated_at={post.updated_at}
+        key={post.content.post}
+      />
+    </div>;
   }
 }
 

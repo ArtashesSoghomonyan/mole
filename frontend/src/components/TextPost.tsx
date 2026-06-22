@@ -4,8 +4,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { FaRegHeart } from "react-icons/fa";
+import { FaRegComment } from "react-icons/fa";
+import { FaRegShareSquare } from "react-icons/fa";
 
 import { DateFormat } from "@/utils";
+import CommentSection from "./CommentSection";
 import "./posts.css";
 
 const TextPost = ({isMine, id, author, content, created_at, updated_at}: {
@@ -24,6 +28,8 @@ const TextPost = ({isMine, id, author, content, created_at, updated_at}: {
   const router = useRouter();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleted, setDeleted] = useState(false);
+  const [showComments, setShowComments] = useState(false);
+  const [commentCount, setCommentCount] = useState(0);
 
   useEffect(() => {
     if (showDeleteModal) {
@@ -69,6 +75,15 @@ const TextPost = ({isMine, id, author, content, created_at, updated_at}: {
     <div className="post-body" onClick={() => router.push(`/p/${id}/`)}>
       <p onClick={e => e.stopPropagation()}>{content}</p>
     </div>
+    <div className="post-footer">
+      <FaRegHeart className="icon" />
+      <span>52</span>
+      <FaRegComment className="icon" onClick={() => setShowComments(!showComments)} style={{ cursor: "pointer" }} />
+      <span>{commentCount}</span>
+      <FaRegShareSquare className="icon" />
+    </div>
+
+    <CommentSection postId={id} showComments={showComments} onCommentCount={setCommentCount} />
 
     {showDeleteModal && (
       <div className="delete-modal-overlay" onClick={() => setShowDeleteModal(false)}>
