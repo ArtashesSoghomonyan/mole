@@ -4,7 +4,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { FaRegHeart } from "react-icons/fa";
 import { FaRegComment } from "react-icons/fa";
+import { FaRegShareSquare } from "react-icons/fa";
 
 import { DateFormat } from "@/utils";
 import CommentSection from "./CommentSection";
@@ -59,7 +61,7 @@ const ImagePost = ({isMine, id, author, image, description, created_at, updated_
     <div className="post-header">
       <div className="line-1">
         <Link className="author-name" href={`/${author.username}/`}>
-          <img src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${author.profile_img}`} />
+          <img src={author.profile_img?.startsWith("http") ? author.profile_img : `${process.env.NEXT_PUBLIC_BACKEND_URL}/${author.profile_img}`} />
           <span>{author.first_name} {author.last_name}</span>
         </Link>
         <div className="options no-select">{isMine && <div>
@@ -76,8 +78,11 @@ const ImagePost = ({isMine, id, author, image, description, created_at, updated_
       <p onClick={e => e.stopPropagation()}>{description || ""}</p>
     </div>
     <div className="post-footer">
+      <FaRegHeart className="icon" />
+      <span>52</span>
       <FaRegComment className="icon" onClick={() => setShowComments(!showComments)} style={{ cursor: "pointer" }} />
       <span>{commentCount}</span>
+      <FaRegShareSquare className="icon" />
     </div>
 
     <CommentSection postId={id} showComments={showComments} onCommentCount={setCommentCount} />

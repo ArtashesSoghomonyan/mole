@@ -1,13 +1,14 @@
-from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from .models import Comment, ImagePost, Post, TextPost
+from .models import Comment, ImagePost, Post, PostLike, TextPost
 from apps.users.serializers import SearchUserSerializer
 
 
 class PostSerializer(serializers.ModelSerializer):
     content = serializers.SerializerMethodField()
     author = serializers.SerializerMethodField()
+    likes_count = serializers.SerializerMethodField()
+    is_liked = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
@@ -16,6 +17,8 @@ class PostSerializer(serializers.ModelSerializer):
             "author",
             "post_type",
             "content",
+            "likes_count",
+            "is_liked",
             "created_at",
             "updated_at",
         ]
@@ -33,6 +36,14 @@ class PostSerializer(serializers.ModelSerializer):
 
     def get_author(self, obj):
         return SearchUserSerializer(obj.author, context=self.context).data
+
+    def get_is_liked(self, obj):
+        user = self.context["request"].user
+
+        return PostLike.objects.filter(post=obj, user=user).exists()
+
+    def get_likes_count(self, obj):
+        return PostLike.objects.filter(post=obj).count()
 
 
 class TextPostSerializer(serializers.ModelSerializer):

@@ -27,7 +27,7 @@ class UserView(APIView):
     def get(self, request, username):
         user = get_object_or_404(get_user_model(), username=username)
         posts = Post.objects.filter(author=user)
-        serializer_posts = PostSerializer(posts, many=True)
+        serializer_posts = PostSerializer(posts, many=True, context={"request": request})
         serializer_user = SearchUserSerializer(user, context={"request": request})
         return Response({
             "user": serializer_user.data,

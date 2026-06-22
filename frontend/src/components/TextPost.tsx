@@ -60,7 +60,7 @@ const TextPost = ({isMine, id, author, content, created_at, updated_at}: {
     <div className="post-header">
       <div className="line-1">
         <Link className="author-name" href={`/${author.username}/`}>
-          <img src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${author.profile_img}`} />
+          <img src={author.profile_img?.startsWith("http") ? author.profile_img : `${process.env.NEXT_PUBLIC_BACKEND_URL}/${author.profile_img}`} />
           <span>{author.first_name} {author.last_name}</span>
         </Link>
         <div className="options no-select">{isMine && <div>

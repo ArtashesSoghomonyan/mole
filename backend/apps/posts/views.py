@@ -1,9 +1,9 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import status, viewsets
+from rest_framework import decorators, status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from .models import Comment, ImagePost, Post, TextPost
+from .models import Comment, ImagePost, Post, PostLike, TextPost
 from .serializers import CommentSerializer, PostSerializer, ReplySerializer
 
 
@@ -13,12 +13,12 @@ class PostViewSet(viewsets.ViewSet):
     def list(self, request):
         """View for listing current user's posts, not a recommendation"""
         queryset = Post.objects.filter(author=request.user)
-        serializer = PostSerializer(queryset, many=True)
+        serializer = PostSerializer(queryset, many=True, context={"request": request})
         return Response(serializer.data)
 
     def retrieve(self, request, pk=None):
         post = get_object_or_404(Post, pk=pk)
-        serializer = PostSerializer(post)
+        serializer = PostSerializer(post, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request):
@@ -57,7 +57,7 @@ class PostViewSet(viewsets.ViewSet):
                 )
             ImagePost.objects.create(post=post, image=image, description=description)
 
-        serializer = PostSerializer(post)
+        serializer = PostSerializer(post, context={"request": request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def partial_update(self, request, pk=None):
@@ -84,8 +84,44 @@ class PostViewSet(viewsets.ViewSet):
 
         post.save()
 
-        serializer = PostSerializer(post)
+        serializer = PostSerializer(post, context={"request": request})
         return Response(serializer.data)
+
+    @decorators.action(detail=True, methods=["post"])
+    def like(self, request, pk=None):
+        post = get_object_or_404(Post, pk=pk)
+
+        _, created = PostLike.objects.get_or_create(
+            user=request.user,
+            post=post,
+        )
+
+        if not created:
+            return Response(
+                {"detail": "You have already liked this post."},
+                status=status.HTTP_409_CONFLICT,
+            )
+
+        serializer = PostSerializer(post, context={"request": request})
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @decorators.action(detail=True, methods=["delete"])
+    def unlike(self, request, pk=None):
+        post = get_object_or_404(Post, pk=pk)
+
+        deleted, _ = PostLike.objects.filter(
+            user=request.user,
+            post=post,
+        ).delete()
+
+        if not deleted:
+            return Response(
+                {"detail": "You have not liked this post."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        serializer = PostSerializer(post, context={"request": request})
+        return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
 
     def destroy(self, request, pk=None):
         post = get_object_or_404(Post, pk=pk)
@@ -196,4 +232,3 @@ class CommentViewSet(viewsets.ViewSet):
             serializer.data,
             status=status.HTTP_200_OK,
         )
-

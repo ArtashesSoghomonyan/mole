@@ -49,6 +49,28 @@ class ImagePost(models.Model):
         return f"Image: {self.description}"
 
 
+class PostLike(models.Model):
+    user = models.ForeignKey(
+        get_user_model(),
+        on_delete=models.CASCADE,
+        related_name="liked_posts",
+    )
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        related_name="likes",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "post"],
+                name="unique_post_like"
+            )
+        ]
+
+
 class Comment(models.Model):
     author = models.ForeignKey(
         get_user_model(),
