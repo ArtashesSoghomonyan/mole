@@ -8,7 +8,9 @@ class PostSerializer(serializers.ModelSerializer):
     content = serializers.SerializerMethodField()
     author = serializers.SerializerMethodField()
     likes_count = serializers.SerializerMethodField()
+    comments_count = serializers.SerializerMethodField()
     is_liked = serializers.SerializerMethodField()
+    feed_score = serializers.FloatField(read_only=True, required=False)
 
     class Meta:
         model = Post
@@ -18,7 +20,9 @@ class PostSerializer(serializers.ModelSerializer):
             "post_type",
             "content",
             "likes_count",
+            "comments_count",
             "is_liked",
+            "feed_score",
             "created_at",
             "updated_at",
         ]
@@ -44,6 +48,9 @@ class PostSerializer(serializers.ModelSerializer):
 
     def get_likes_count(self, obj):
         return PostLike.objects.filter(post=obj).count()
+
+    def get_comments_count(self, obj):
+        return obj.comments.count()
 
 
 class TextPostSerializer(serializers.ModelSerializer):

@@ -3,6 +3,7 @@ from rest_framework import decorators, status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from .feed import get_scored_post_queryset
 from .models import Comment, ImagePost, Post, PostLike, TextPost
 from .serializers import CommentSerializer, PostSerializer, ReplySerializer
 
@@ -122,6 +123,12 @@ class PostViewSet(viewsets.ViewSet):
 
         serializer = PostSerializer(post, context={"request": request})
         return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
+
+    @decorators.action(detail=False, methods=["get"])
+    def feed(self, request):
+        queryset = get_scored_post_queryset()
+        serializer = PostSerializer(queryset, many=True, context={"request": request})
+        return Response(serializer.data)
 
     def destroy(self, request, pk=None):
         post = get_object_or_404(Post, pk=pk)
