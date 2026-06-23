@@ -1,7 +1,23 @@
-from django.db.models import Count, F, Value, FloatField, ExpressionWrapper
+from django.db.models import Count, F, Value, FloatField, ExpressionWrapper, Func
 from django.db.models.functions import Now
 
 from .models import Post
+
+
+class EpochSeconds(Func):
+    """
+    Returns the number of seconds since the Unix epoch for a datetime expression.
+    Uses EXTRACT(EPOCH FROM ...) on PostgreSQL and unixepoch(...) on SQLite 3.50+.
+    """
+    output_field = FloatField()
+
+    def as_sqlite(self, compiler, connection):
+        sql, params = compiler.compile(self.source_expressions[0])
+        return f"unixepoch({sql})", params
+
+    def as_postgresql(self, compiler, connection):
+        sql, params = compiler.compile(self.source_expressions[0])
+        return f"EXTRACT(EPOCH FROM {sql})", params
 
 
 def get_scored_post_queryset():
@@ -18,10 +34,9 @@ def get_scored_post_queryset():
             likes_count=Count("likes", distinct=True),
             comments_count=Count("comments", distinct=True),
             # Age in hours = (now - created_at) in seconds / 3600
-            # Using Extract with 'epoch' on a datetime field directly
-            # (not on a DurationField) for SQLite compatibility
+            # Uses unixepoch() on SQLite and EXTRACT(EPOCH FROM ...) on PostgreSQL
             age_hours=ExpressionWrapper(
-                (Now() - F("created_at")) / 3600.0,
+                (EpochSeconds(Now()) - EpochSeconds(F("created_at"))) / 3600.0,
                 output_field=FloatField(),
             ),
             # score = likes * 1 + comments * 3 - age_hours * 0.1

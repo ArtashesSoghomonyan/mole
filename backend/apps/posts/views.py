@@ -1,11 +1,18 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import decorators, status, viewsets
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .feed import get_scored_post_queryset
 from .models import Comment, ImagePost, Post, PostLike, TextPost
 from .serializers import CommentSerializer, PostSerializer, ReplySerializer
+
+
+class FeedPagination(PageNumberPagination):
+    page_size = 20
+    page_size_query_param = "page_size"
+    max_page_size = 100
 
 
 class PostViewSet(viewsets.ViewSet):
@@ -127,8 +134,10 @@ class PostViewSet(viewsets.ViewSet):
     @decorators.action(detail=False, methods=["get"])
     def feed(self, request):
         queryset = get_scored_post_queryset()
-        serializer = PostSerializer(queryset, many=True, context={"request": request})
-        return Response(serializer.data)
+        paginator = FeedPagination()
+        page = paginator.paginate_queryset(queryset, request)
+        serializer = PostSerializer(page, many=True, context={"request": request})
+        return paginator.get_paginated_response(serializer.data)
 
     def destroy(self, request, pk=None):
         post = get_object_or_404(Post, pk=pk)
