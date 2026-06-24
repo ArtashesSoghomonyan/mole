@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     "channels",
     # Local apps
-    "apps.messages.apps.MessagesConfig",
+    "apps.chat.apps.ChatConfig",
     "apps.posts.apps.PostsConfig",
     "apps.users.apps.UsersConfig",
 ]

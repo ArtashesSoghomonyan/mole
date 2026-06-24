@@ -17,7 +17,7 @@ type FormValues = {
   password2: string | null
 }
 
-const forbiddenUsernames = ["register", "profile"];
+const forbiddenUsernames = ["register", "profile", "chat"];
 
 const RegisterPage = () => {
   const { user, loading, login } = useAuth();
