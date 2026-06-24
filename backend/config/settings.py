@@ -37,9 +37,11 @@ INSTALLED_APPS = [
     "rest_framework",
     "corsheaders",
     'rest_framework_simplejwt',
+    "channels",
     # Local apps
-    "apps.users.apps.UsersConfig",
+    "apps.messages.apps.MessagesConfig",
     "apps.posts.apps.PostsConfig",
+    "apps.users.apps.UsersConfig",
 ]
 
 # Development extensions
@@ -160,10 +162,25 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
 ]
 
+# Django REST FRAMEWORK and DRF simple jwt
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         "rest_framework.authentication.SessionAuthentication",
     ],
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+# Messages
+
+ASGI_APPLICATION = "config.asgi.application"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
 }
