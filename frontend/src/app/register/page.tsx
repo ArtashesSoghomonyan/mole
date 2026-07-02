@@ -9,13 +9,13 @@ import { useAuth } from "@/context/AuthContext";
 import "./style.css";
 
 type FormValues = {
-  username: string | null
-  email: string | null
-  firstName: string | null
-  lastName: string | null
-  password1: string | null
-  password2: string | null
-}
+  username: string | null;
+  email: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  password1: string | null;
+  password2: string | null;
+};
 
 const forbiddenUsernames = ["register", "profile", "chat"];
 
@@ -48,18 +48,21 @@ const RegisterPage = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    Object.values(errors).forEach(item => {
+    Object.values(errors).forEach((item) => {
       if (item !== null) return;
-    })
+    });
 
     try {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/users/register/`, {
-        email: formData.email,
-        username: formData.username,
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        password: formData.password1,
-      });
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/users/register/`,
+        {
+          email: formData.email,
+          username: formData.username,
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          password: formData.password1,
+        },
+      );
 
       if (response.status === 201) {
         login({
@@ -73,19 +76,25 @@ const RegisterPage = () => {
         setFinalError(true);
       }
     }
-  }
+  };
 
   const validateUsername = (username: string) => {
-    setFormData({...formData, username: username});
+    setFormData({ ...formData, username: username });
 
     if (!(username.length >= 1 && username.length <= 50)) {
-      setErrors({...errors, username: "Username can have less than 50 characters."});
+      setErrors({
+        ...errors,
+        username: "Username can have less than 50 characters.",
+      });
       return;
     } else if (!/^[a-z_]+$/.test(username)) {
-      setErrors({...errors, username: "Username can only contain english letters and underscores"});
+      setErrors({
+        ...errors,
+        username: "Username can only contain english letters and underscores",
+      });
       return;
     } else if (forbiddenUsernames.includes(username)) {
-      setErrors({...errors, username: "This username is not allowed."});
+      setErrors({ ...errors, username: "This username is not allowed." });
       return;
     }
 
@@ -103,25 +112,28 @@ const RegisterPage = () => {
             params: {
               username: username,
             },
-          }
+          },
         );
 
         if (!response.data.available) {
-          setErrors({...errors, username: "This username is already used."});
+          setErrors({ ...errors, username: "This username is already used." });
         } else {
-          setErrors({...errors, username: null});
+          setErrors({ ...errors, username: null });
         }
       } catch {
-        setErrors({...errors, username: "Could not check username availability."});
+        setErrors({
+          ...errors,
+          username: "Could not check username availability.",
+        });
       }
     }, 1000);
   };
 
   const validateEmail = (email: string) => {
-    setFormData({...formData, email: email});
+    setFormData({ ...formData, email: email });
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setErrors({...errors, email: "Please enter a valid email."});
+      setErrors({ ...errors, email: "Please enter a valid email." });
       return;
     }
 
@@ -139,144 +151,167 @@ const RegisterPage = () => {
             params: {
               email: email,
             },
-          }
+          },
         );
 
         if (!response.data.available) {
-          setErrors({...errors, email: "This email is not available to use."});
+          setErrors({
+            ...errors,
+            email: "This email is not available to use.",
+          });
         } else {
-          setErrors({...errors, email: null});
+          setErrors({ ...errors, email: null });
         }
       } catch {
-        setErrors({...errors, email: "Could not check email availability."});
+        setErrors({ ...errors, email: "Could not check email availability." });
       }
     }, 1000);
-  }
+  };
 
   const validateFirstName = (firstName: string) => {
-    setFormData({...formData, firstName: firstName});
+    setFormData({ ...formData, firstName: firstName });
 
     if (!/^\p{L}+$/u.test(firstName)) {
-      setErrors({...errors, firstName: "First name can only contain letters."});
+      setErrors({
+        ...errors,
+        firstName: "First name can only contain letters.",
+      });
     } else {
-      setErrors({...errors, firstName: null});
+      setErrors({ ...errors, firstName: null });
     }
-  }
+  };
 
   const validateLastName = (lastName: string) => {
-    setFormData({...formData, lastName: lastName});
+    setFormData({ ...formData, lastName: lastName });
 
     if (!/^\p{L}+$/u.test(lastName)) {
-      setErrors({...errors, lastName: "Last name can only contain letters."});
+      setErrors({ ...errors, lastName: "Last name can only contain letters." });
     } else {
-      setErrors({...errors, lastName: null});
+      setErrors({ ...errors, lastName: null });
     }
-  }
+  };
 
   const validatePassword1 = (password1: string) => {
-    setFormData({...formData, password1: password1});
+    setFormData({ ...formData, password1: password1 });
 
     if (password1.length <= 7) {
-      setErrors({...errors, password1: "Password is too short, it should be at least 8 characters."});
+      setErrors({
+        ...errors,
+        password1: "Password is too short, it should be at least 8 characters.",
+      });
     } else if (/^\d+$/.test(password1)) {
-      setErrors({...errors, password1: "Password cannot be entirely numeric."});
-    } else if ([formData.username, formData.firstName, formData.lastName, formData.email]
-      .filter((v): v is string => v !== null)
-      .some(v => password1.toLowerCase().includes(v.toLowerCase()))) {
-      setErrors({...errors, password1: "Password is too similar to your personal information."})
+      setErrors({
+        ...errors,
+        password1: "Password cannot be entirely numeric.",
+      });
+    } else if (
+      [formData.username, formData.firstName, formData.lastName, formData.email]
+        .filter((v): v is string => v !== null)
+        .some((v) => password1.toLowerCase().includes(v.toLowerCase()))
+    ) {
+      setErrors({
+        ...errors,
+        password1: "Password is too similar to your personal information.",
+      });
     } else {
-      setErrors({...errors, password1: null});
+      setErrors({ ...errors, password1: null });
     }
-  }
+  };
 
   const validatePassword2 = (password2: string) => {
-    setFormData({...formData, password2: password2});
+    setFormData({ ...formData, password2: password2 });
 
     if (password2 !== formData.password1) {
-      setErrors({...errors, password2: "Passwords don't match"});
+      setErrors({ ...errors, password2: "Passwords don't match" });
     } else {
-      setErrors({...errors, password2: null});
+      setErrors({ ...errors, password2: null });
     }
-  }
+  };
 
   if (!!user) {
     redirect("/");
   }
 
   if (loading) {
-    return <h1>Loading ...</h1>
+    return <h1>Loading ...</h1>;
   }
 
-  return <>
-    <head>
-      <title>Mole - Register</title>
-    </head>
-    <form onSubmit={handleSubmit} className="registration-form">
-      <h1>Join our community!</h1>
-      {finalError && <h2 className="error">Something went wrong try again.</h2>}
-      <label htmlFor="username">Username: </label>
-      {errors.username && <p className="error">{errors.username}</p>}
-      <input
-        type="text"
-        name="username"
-        maxLength={50}
-        onChange={e => validateUsername(e.target.value.trim())}
-        placeholder="Username"
-        required
+  return (
+    <>
+      <head>
+        <title>Mole - Register</title>
+      </head>
+      <form onSubmit={handleSubmit} className="registration-form">
+        <h1>Join our community!</h1>
+        {finalError && (
+          <h2 className="error">Something went wrong try again.</h2>
+        )}
+        <label htmlFor="username">Username: </label>
+        {errors.username && <p className="error">{errors.username}</p>}
+        <input
+          type="text"
+          name="username"
+          maxLength={50}
+          onChange={(e) => validateUsername(e.target.value.trim())}
+          placeholder="Username"
+          required
         />
-      <label htmlFor="email">Email: </label>
-      {errors.email && <p className="error">{errors.email}</p>}
-      <input
-        type="email"
-        name="email"
-        onChange={e => validateEmail(e.target.value.trim())}
-        placeholder="Email"
-        required
+        <label htmlFor="email">Email: </label>
+        {errors.email && <p className="error">{errors.email}</p>}
+        <input
+          type="email"
+          name="email"
+          onChange={(e) => validateEmail(e.target.value.trim())}
+          placeholder="Email"
+          required
         />
-      <label htmlFor="first_name">First Name: </label>
-      {errors.firstName && <p className="error">{errors.firstName}</p>}
-      <input
-        type="text"
-        name="first_name"
-        maxLength={30}
-        onChange={e => validateFirstName(e.target.value.trim())}
-        placeholder="First Name"
-        required
+        <label htmlFor="first_name">First Name: </label>
+        {errors.firstName && <p className="error">{errors.firstName}</p>}
+        <input
+          type="text"
+          name="first_name"
+          maxLength={30}
+          onChange={(e) => validateFirstName(e.target.value.trim())}
+          placeholder="First Name"
+          required
         />
-      <label htmlFor="last_name">Last Name: </label>
-      {errors.lastName && <p className="error">{errors.lastName}</p>}
-      <input
-        type="text"
-        name="last_name"
-        maxLength={30}
-        onChange={e => validateLastName(e.target.value.trim())}
-        placeholder="Last Name"
-        required
+        <label htmlFor="last_name">Last Name: </label>
+        {errors.lastName && <p className="error">{errors.lastName}</p>}
+        <input
+          type="text"
+          name="last_name"
+          maxLength={30}
+          onChange={(e) => validateLastName(e.target.value.trim())}
+          placeholder="Last Name"
+          required
         />
-      <label htmlFor="password1">Password: </label>
-      {errors.password1 && <p className="error">{errors.password1}</p>}
-      <input
-        type="password"
-        name="password1"
-        minLength={8}
-        onChange={e => validatePassword1(e.target.value.trim())}
-        placeholder="Password"
-        required
+        <label htmlFor="password1">Password: </label>
+        {errors.password1 && <p className="error">{errors.password1}</p>}
+        <input
+          type="password"
+          name="password1"
+          minLength={8}
+          onChange={(e) => validatePassword1(e.target.value.trim())}
+          placeholder="Password"
+          required
         />
-      <label htmlFor="password2">Confirm Password: </label>
-      {errors.password2 && <p className="error">{errors.password2}</p>}
-      <input
-        type="password"
-        name="password2"
-        minLength={8}
-        onChange={e => validatePassword2(e.target.value.trim())}
-        placeholder="Confirm Password"
-        required
+        <label htmlFor="password2">Confirm Password: </label>
+        {errors.password2 && <p className="error">{errors.password2}</p>}
+        <input
+          type="password"
+          name="password2"
+          minLength={8}
+          onChange={(e) => validatePassword2(e.target.value.trim())}
+          placeholder="Confirm Password"
+          required
         />
-      <input type="submit" value="Register" className="btn btn-filled" />
-      <p>Already have an account? <Link href="/">Log in!</Link></p>
-    </form>
-  </>;
-}
+        <input type="submit" value="Register" className="btn btn-filled" />
+        <p>
+          Already have an account? <Link href="/">Log in!</Link>
+        </p>
+      </form>
+    </>
+  );
+};
 
 export default RegisterPage;
