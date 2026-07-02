@@ -23,6 +23,7 @@ A full-stack social media platform built with Next.js, Django REST Framework, Po
 * [🪐 uv package manager](https://docs.astral.sh/uv/)
 * [🐘 PostgreSQL](https://www.postgresql.org/)
 * [⬢ Node.js and npm](https://nodejs.org/en)
+* [🐳 Docker](https://www.docker.com/) (optional — for containerized setup)
 
 ## 🛠️ Tech Stack
 
@@ -50,13 +51,45 @@ Backend:
 
 ## 🚀 Installation
 
-### 1. Clone this repository
+### Option 1: Docker (recommended for quick start)
+
+The project includes Dockerfiles for both development and production.
+
+#### Development with Docker
+
+```shell
+# 1. Clone the repository
+git clone https://github.com/ArtashesSoghomonyan/mole.git
+cd mole
+
+# 2. Set up environment variables
+cp backend/.env.example backend/.env
+cp frontend/.env.local.example frontend/.env.local
+
+# 3. Start all services (PostgreSQL, backend, frontend)
+docker compose -f docker-compose.dev.yml up --build
+```
+
+This starts:
+- **PostgreSQL 16** on port `5432`
+- **Django backend** on port `8000` (with hot-reload — code changes apply immediately)
+- **Next.js frontend** on port `3000` (with hot-reload)
+
+#### Production with Docker
+
+```shell
+docker compose up --build
+```
+
+### Option 2: Manual setup
+
+#### 1. Clone this repository
 
 ```shell
 git clone https://github.com/ArtashesSoghomonyan/mole.git
 ```
 
-### 2. Install the packages
+#### 2. Install the packages
 
 ```shell
 cd mole/backend
@@ -67,7 +100,7 @@ cd ../frontend
 npm install
 ```
 
-### 3. Create the environment variables
+#### 3. Create the environment variables
 
 ```shell
 cd mole/backend
@@ -76,7 +109,7 @@ cd ../frontend
 cp .env.local.example .env.local
 ```
 
-### 4. Create a database in Postgres shell
+#### 4. Create a database in Postgres shell
 
 ```sql
 CREATE USER moleuser WITH PASSWORD 'password1234!';
@@ -84,7 +117,7 @@ CREATE DATABASE mole OWNER moleuser;
 GRANT ALL PRIVILEGES ON DATABASE mole TO moleuser;
 ```
 
-### 5. Run migrations and run the project
+#### 5. Run migrations and run the project
 
 * Inside mole/backend run
   ```shell

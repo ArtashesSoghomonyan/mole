@@ -1,0 +1,11 @@
+node_modules
+.next
+out
+build
+.env*
+.git
+.gitignore
+*.tsbuildinfo
+next-env.d.ts
+.eslintrc.json
+.eslintrc
