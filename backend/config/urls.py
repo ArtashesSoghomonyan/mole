@@ -26,6 +26,7 @@ router.register("comments", CommentViewSet, basename="comment")
 urlpatterns = [
     path("api/health/", APIHealthView.as_view(), name="api_health"),
     path("api/", include(router.urls)),
+    path("api/chat/", include(("apps.chat.urls", "chat"))),
     path("api/users/", include(("apps.users.urls", "users"))),
 ]
 

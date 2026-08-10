@@ -3,12 +3,12 @@ from django.db import models
 
 
 class Conversation(models.Model):
-    title = models.CharField(max_length=300)
+    title = models.CharField(max_length=300, null=True, blank=True)
     participants = models.ManyToManyField(get_user_model(), related_name="conversations")
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.title
+        return f"[{self.id}] {self.title}"
 
 
 class Message(models.Model):

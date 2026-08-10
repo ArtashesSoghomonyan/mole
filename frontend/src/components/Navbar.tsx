@@ -94,9 +94,9 @@ const Navbar = () => {
             )}
           </div>
         </li>
-        <li><a href="#" title="Messages">
+        <li><Link href="/chat" title="Messages">
           <AiOutlineMessage />
-        </a></li>
+        </Link></li>
         <li><a href="#" title="Notifications">
           <FaRegBell />
         </a></li>
