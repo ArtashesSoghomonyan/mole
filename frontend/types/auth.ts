@@ -1,4 +1,4 @@
-import Post from "@/types/posts";
+import { Post } from "@/types/posts";
 
 export type User = {
   id: number,
