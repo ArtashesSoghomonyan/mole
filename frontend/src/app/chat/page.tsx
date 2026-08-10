@@ -5,21 +5,22 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 
 import { useAuth } from "@/context/AuthContext";
-import { Conversation, Message as ChatMessage } from "@/types/chat";
+import { Conversation, Message } from "@/types/chat";
 import { DateFormat } from "@/utils";
 import "./style.css";
 
-const ChatPage = () => {
+export default function ChatPage() {
   const router = useRouter();
   const { user, loading } = useAuth();
   const socketRef = useRef<WebSocket | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversation, setActiveConversation] = useState<Conversation | null>(null);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [messageInput, setMessageInput] = useState<string>("");
   const [conversationsLoading, setConversationsLoading] = useState<boolean>(true);
+  const [messagesLoading, setMessagesLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (loading || !user) return;
@@ -59,7 +60,7 @@ const ChatPage = () => {
 
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      const newMessage: ChatMessage = {
+      const newMessage: Message = {
         id: data.message_id,
         content: data.message,
         sender: data.sender_id,
@@ -93,9 +94,21 @@ const ChatPage = () => {
     }
   };
 
-  const selectConversation = (conversation: Conversation) => {
-    setActiveConversation(conversation);
-    setMessages([]);
+  const selectConversation = async (conversation: Conversation) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      setActiveConversation(conversation);
+      setMessagesLoading(true);
+      const response = await axios.get<Message[]>(
+        `${process.env.NEXT_PUBLIC_API_URL}/chat/conversations/${conversation.id}/messages/`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setMessages(response.data);
+    } catch (error) {
+      console.error("Failed to load conversation messages", error);
+    } finally {
+      setMessagesLoading(false);
+    }
   };
 
   const getConversationTitle = (conversation: Conversation): string => {
@@ -138,7 +151,7 @@ const ChatPage = () => {
                 className={`conversation-item ${
                   activeConversation?.id === conversation.id ? "active" : ""
                 }`}
-                onClick={() => selectConversation(conversation)}
+                onClick={() => (activeConversation?.id !== conversation.id) && selectConversation(conversation)}
               >
                 <div className="conversation-avatar">
                   {getConversationTitle(conversation).charAt(0).toUpperCase()}
@@ -175,7 +188,9 @@ const ChatPage = () => {
             </header>
 
             <div className="messages-container">
-              {messages.length === 0 ? (
+              {messagesLoading ? (
+                <p className="messages-loading">Loading messages...</p>
+              ) : messages.length === 0 ? (
                 <p className="messages-empty">No messages yet. Start the conversation!</p>
               ) : (
                 messages.map((msg, idx) => (
@@ -224,5 +239,3 @@ const ChatPage = () => {
     </div>
   );
 };
-
-export default ChatPage;
