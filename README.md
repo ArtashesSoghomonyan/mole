@@ -11,7 +11,7 @@ A full-stack social media platform built with Next.js, Django REST Framework, Po
 - Comments and replies
 - Infinite scrolling feed
 - User profiles
-- Messaging (Coming soon)
+- Messaging
 - Real-time notifications (Coming soon)
 - Polls (Coming soon)
 - Image filters (Coming soon)
@@ -22,7 +22,7 @@ A full-stack social media platform built with Next.js, Django REST Framework, Po
 * [🐍 Python](https://www.python.org/)
 * [🪐 uv package manager](https://docs.astral.sh/uv/)
 * [🐘 PostgreSQL](https://www.postgresql.org/)
-* [⬢ Node.js and npm](https://nodejs.org/en)
+* [⬢ Node.js and pnpm](https://nodejs.org/en)
 
 ## 🛠️ Tech Stack
 
@@ -37,16 +37,8 @@ Backend:
 - PostgreSQL
 - SimpleJWT
 
-## 📷 Screenshots
-
-### Home Feed
+## 📷 Screenshot (Home Feed)
 ![Feed](./docs/screenshots/1.png)
-
-### User Profile
-![Profile](./docs/screenshots/2.png)
-
-### Comment section
-![Comment](./docs/screenshots/3.png)
 
 ## 🚀 Installation
 
@@ -64,7 +56,7 @@ uv venv
 source .venv/bin/activate
 uv sync
 cd ../frontend
-npm install
+pnpm install
 ```
 
 ### 3. Create the environment variables
@@ -95,7 +87,7 @@ GRANT ALL PRIVILEGES ON DATABASE mole TO moleuser;
 
 * Inside mole/frontend run
   ```shell
-  npm run dev
+  pnpm run dev
   ```
 
 ## 🧑‍💻 API Documentation
