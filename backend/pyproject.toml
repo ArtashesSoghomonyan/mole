@@ -22,5 +22,6 @@ dependencies = [
 [dependency-groups]
 dev = [
     "django-extensions>=4.1",
+    "faker>=40.36.0",
     "requests>=2.34.2",
 ]
