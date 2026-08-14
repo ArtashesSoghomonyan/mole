@@ -1,7 +1,8 @@
 from rest_framework import serializers
 
-from .models import Comment, ImagePost, Post, PostLike, TextPost
 from apps.users.serializers import SearchUserSerializer
+
+from .models import Comment, ImagePost, Post, PostLike, TextPost
 
 
 class PostSerializer(serializers.ModelSerializer):
@@ -30,12 +31,12 @@ class PostSerializer(serializers.ModelSerializer):
     def get_content(self, obj):
         if obj.post_type == "text":
             return TextPostSerializer(
-                obj.text_content
+                obj.text_content, context=self.context
             ).data
 
         if obj.post_type == "image":
             return ImagePostSerializer(
-                obj.image_content
+                obj.image_content, context=self.context
             ).data
 
     def get_author(self, obj):

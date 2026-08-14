@@ -1,9 +1,7 @@
 "use client";
 
-import Cropper from "react-easy-crop";
+import Cropper, { type Area } from "react-easy-crop";
 import { useState } from "react";
-
-import "./AvatarCropper.css";
 
 interface AvatarCropperProps {
   onCropComplete?: (blob: Blob | null) => void;
@@ -13,7 +11,7 @@ const AvatarCropper = ({ onCropComplete }: AvatarCropperProps) => {
   const [image, setImage] = useState<string | null>(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -30,8 +28,8 @@ const AvatarCropper = ({ onCropComplete }: AvatarCropperProps) => {
   };
 
   const onCropChange = (
-    _: any,
-    croppedAreaPixels: any
+    _: Area,
+    croppedAreaPixels: Area
   ) => {
     setCroppedAreaPixels(croppedAreaPixels);
   };
@@ -52,7 +50,12 @@ const AvatarCropper = ({ onCropComplete }: AvatarCropperProps) => {
 
   return (
     <>
-      <label htmlFor="avatar-upload" className="btn btn-outlined-secondary">Change photo</label>
+      <label
+        htmlFor="avatar-upload"
+        className="inline-flex h-9 cursor-pointer items-center justify-center rounded-lg border border-input bg-background px-4 text-sm font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+      >
+        Change photo
+      </label>
       <input
         type="file"
         accept="image/*"
@@ -62,14 +65,8 @@ const AvatarCropper = ({ onCropComplete }: AvatarCropperProps) => {
       />
 
       {image && (
-        <div className="cropper-overlay">
-          <div
-            style={{
-              position: "relative",
-              width: "400px",
-              height: "400px"
-            }}
-          >
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 bg-black/75 p-4">
+          <div className="relative size-[min(400px,calc(100vw-2rem))]">
             <Cropper
               image={image}
               crop={crop}
@@ -81,11 +78,19 @@ const AvatarCropper = ({ onCropComplete }: AvatarCropperProps) => {
               onCropComplete={onCropChange}
             />
           </div>
-          <div className="cropper-actions">
-            <button type="button" className="btn btn-filled" onClick={handleCropConfirm}>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              className="inline-flex h-9 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+              onClick={handleCropConfirm}
+            >
               Crop & Save
             </button>
-            <button type="button" className="btn btn-outlined" onClick={handleCancel}>
+            <button
+              type="button"
+              className="inline-flex h-9 items-center justify-center rounded-lg border border-input bg-background px-4 text-sm font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+              onClick={handleCancel}
+            >
               Cancel
             </button>
           </div>

@@ -6,6 +6,7 @@ import { useState } from "react";
 import axios from "axios";
 
 import AvatarCropper from "@/components/AvatarCropper";
+import { mediaUrl } from "@/utils";
 import "./style.css";
 
 const ProfilePage = () => {
@@ -74,11 +75,7 @@ const ProfilePage = () => {
       )}
 
       <div className="avatar-bar">
-        <img className="avatar" src={
-          user.profile?.avatar
-          ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${user.profile?.avatar}/`
-          : "/person.jpg"
-        } alt="Avatar" />
+        <img className="avatar" src={mediaUrl(user.profile?.avatar)} alt="Avatar" />
         <AvatarCropper onCropComplete={handleAvatarCrop} />
       </div>
 

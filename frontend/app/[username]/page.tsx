@@ -4,13 +4,26 @@ import { use, useEffect, useState } from "react";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import axios from "axios";
+import { UsersIcon } from "@phosphor-icons/react";
 
 import { useAuth } from "@/context/AuthContext";
-import { SearchUser } from "@/types/auth";
 import { Post } from "@/types/posts";
+import { mediaUrl } from "@/utils";
 import TextPost from "@/components/TextPost";
 import ImagePost from "@/components/ImagePost";
-import "./style.css";
+
+type UserProfile = {
+  username: string;
+  first_name: string;
+  last_name: string;
+  followers_count: number;
+  following_count: number;
+  is_following: boolean;
+  profile: {
+    avatar: string | null;
+    bio: string | null;
+  };
+};
 
 const UserPage = ({
   params,
@@ -19,7 +32,7 @@ const UserPage = ({
 }) => {
   const { username } = use(params);
   const { user, loading } = useAuth();
-  const [searchUser, setSearchUser] = useState<SearchUser | null>(null);
+  const [searchUser, setSearchUser] = useState<UserProfile | null>(null);
   const [posts, setPosts] = useState<Post[] | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
@@ -27,7 +40,7 @@ const UserPage = ({
   useEffect(() => {
     const fetchSearchUser = async () => {
       try {
-        const response = await axios.get<SearchUser>(`${process.env.NEXT_PUBLIC_API_URL}/users/${username}/`, {
+        const response = await axios.get<{ user: UserProfile; posts: Post[] }>(`${process.env.NEXT_PUBLIC_API_URL}/users/${username}/`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
         });
 
@@ -67,7 +80,53 @@ const UserPage = ({
   };
 
   if (loading) {
-    return <h1>Loading...</h1>
+    return (
+      <main className="min-h-[calc(100vh-4rem)] bg-muted/20">
+        <div className="mx-auto flex w-full max-w-2xl flex-col">
+          {/* Profile skeleton */}
+          <div className="border-b border-border/80 bg-card px-4 py-8 sm:px-6">
+            <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start sm:gap-6">
+              <div className="size-24 shrink-0 animate-pulse rounded-full bg-muted sm:size-28" />
+              <div className="flex flex-1 flex-col items-center gap-3 sm:items-start">
+                <div className="h-6 w-40 animate-pulse rounded bg-muted" />
+                <div className="h-4 w-24 animate-pulse rounded bg-muted" />
+                <div className="h-4 w-64 animate-pulse rounded bg-muted" />
+                <div className="flex gap-6">
+                  <div className="h-4 w-24 animate-pulse rounded bg-muted" />
+                  <div className="h-4 w-24 animate-pulse rounded bg-muted" />
+                </div>
+                <div className="mt-2 h-9 w-28 animate-pulse rounded-lg bg-muted" />
+              </div>
+            </div>
+          </div>
+
+          {/* Post skeletons */}
+          <div className="flex flex-col gap-4 px-4 py-6">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+                <div className="flex items-center gap-3 p-4">
+                  <div className="size-10 shrink-0 animate-pulse rounded-full bg-muted" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-3 w-32 animate-pulse rounded bg-muted" />
+                    <div className="h-2.5 w-24 animate-pulse rounded bg-muted" />
+                  </div>
+                </div>
+                <div className="space-y-2.5 border-y border-border px-4 py-5">
+                  <div className="h-3 w-full animate-pulse rounded bg-muted" />
+                  <div className="h-3 w-4/5 animate-pulse rounded bg-muted" />
+                  <div className="h-3 w-2/3 animate-pulse rounded bg-muted" />
+                </div>
+                <div className="flex items-center gap-5 px-4 py-3">
+                  <div className="size-5 animate-pulse rounded bg-muted" />
+                  <div className="size-5 animate-pulse rounded bg-muted" />
+                  <div className="size-5 animate-pulse rounded bg-muted" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </main>
+    );
   }
 
   if (!user) {
@@ -75,76 +134,166 @@ const UserPage = ({
   }
 
   if (notFound) {
-    return <h1>Oops! User @{username} does not exist.</h1>
+    return (
+      <main className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-muted/20 px-4">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <span className="flex size-16 items-center justify-center rounded-full bg-muted text-muted-foreground">
+            <UsersIcon className="size-8" />
+          </span>
+          <div className="space-y-1">
+            <h1 className="text-xl font-semibold text-foreground">User not found</h1>
+            <p className="text-sm text-muted-foreground">
+              The user <span className="font-medium text-foreground">@{username}</span> does not exist.
+            </p>
+          </div>
+          <Link
+            href="/"
+            className="inline-flex h-9 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+          >
+            Back to home
+          </Link>
+        </div>
+      </main>
+    );
   }
 
+  const avatarSource = mediaUrl(searchUser?.profile?.avatar);
+
+  const isOwnProfile = user.username === searchUser?.username;
+
   return (
-    <div className="profile">
-      <div className="profile-top">
-        <img src={
-          searchUser?.profile?.avatar
-            ? `${searchUser?.profile.avatar}`
-            : "/person.jpg"
-        } />
-        <div className="block">
-          <h1 className="name">{searchUser?.first_name} {searchUser?.last_name}</h1>
-          <p>@{searchUser?.username}</p>
-          <p>{searchUser?.profile?.bio || ""}</p>
-          <div className="flex">
-            <h3>{searchUser?.followers_count} followers</h3>
-            <h3>{searchUser?.following_count} following</h3>
+    <main className="min-h-[calc(100vh-4rem)] bg-muted/20">
+      <div className="mx-auto flex w-full max-w-2xl flex-col">
+        {/* Profile header */}
+        <header className="border-b border-border/80 bg-card px-4 py-8 sm:px-6">
+          <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start sm:gap-6">
+            <img
+              src={avatarSource}
+              alt={`${searchUser?.first_name} ${searchUser?.last_name}`}
+              className="size-24 shrink-0 rounded-full border-2 border-border object-cover sm:size-28"
+            />
+
+            <div className="flex flex-1 flex-col items-center gap-1.5 sm:items-start">
+              <h1 className="text-xl font-bold tracking-tight text-foreground">
+                {searchUser?.first_name} {searchUser?.last_name}
+              </h1>
+              <p className="text-sm text-muted-foreground">@{searchUser?.username}</p>
+
+              {searchUser?.profile?.bio && (
+                <p className="mt-1 max-w-md text-center text-sm leading-relaxed text-foreground/80 sm:text-start">
+                  {searchUser.profile.bio}
+                </p>
+              )}
+
+              <div className="mt-3 flex items-center gap-5">
+                <span className="text-sm">
+                  <span className="font-semibold text-foreground">{searchUser?.followers_count}</span>
+                  <span className="ml-1 text-muted-foreground">followers</span>
+                </span>
+                <span className="text-sm">
+                  <span className="font-semibold text-foreground">{searchUser?.following_count}</span>
+                  <span className="ml-1 text-muted-foreground">following</span>
+                </span>
+              </div>
+
+              <div className="mt-4">
+                {isOwnProfile ? (
+                  <Link
+                    href="/profile"
+                    className="inline-flex h-9 items-center justify-center rounded-lg border border-input bg-background px-4 text-sm font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                  >
+                    Edit Profile
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleFollowToggle}
+                    className={`inline-flex h-9 items-center justify-center rounded-lg px-4 text-sm font-medium transition-colors ${
+                      isFollowing
+                        ? "border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground"
+                        : "bg-primary text-primary-foreground hover:bg-primary/90"
+                    }`}
+                  >
+                    {isFollowing ? "Unfollow" : "Follow"}
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
-          {user.username === searchUser?.username
-            ? <Link href="/profile"><input type="button" value="Edit Profile" className="btn btn-outlined-secondary" /></Link>
-            : <input
-                type="button"
-                value={isFollowing ? "Unfollow" : "Follow"}
-                className={isFollowing ? "btn btn-filled-secondary" : "btn btn-outlined-secondary"}
-                onClick={handleFollowToggle}
-              />}
+        </header>
+
+        {/* Posts section */}
+        <div className="flex flex-col">
+          {posts && posts.length > 0 ? (
+            posts.map((post) => {
+              if (post.post_type === "text") {
+                return (
+                  <TextPost
+                    isMine={post.author.username === user.username}
+                    id={post.id}
+                    author={{
+                      username: post.author.username,
+                      first_name: post.author.first_name,
+                      last_name: post.author.last_name,
+                      profile_img: post.author.profile.avatar,
+                    }}
+                    content={post.content.content}
+                    created_at={post.created_at}
+                    updated_at={post.updated_at}
+                    likes_count={post.likes_count}
+                    is_liked={post.is_liked}
+                    key={post.content.post}
+                  />
+                );
+              } else if (post.post_type === "image") {
+                return (
+                  <ImagePost
+                    isMine={post.author.username === user.username}
+                    id={post.id}
+                    author={{
+                      username: post.author.username,
+                      first_name: post.author.first_name,
+                      last_name: post.author.last_name,
+                      profile_img: post.author.profile.avatar,
+                    }}
+                    image={post.content.image}
+                    description={post.content.description}
+                    created_at={post.created_at}
+                    updated_at={post.updated_at}
+                    likes_count={post.likes_count}
+                    is_liked={post.is_liked}
+                    key={post.content.post}
+                  />
+                );
+              }
+            })
+          ) : (
+            <div className="flex flex-col items-center gap-3 px-4 py-20 text-center">
+              <span className="flex size-14 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                <UsersIcon className="size-7" />
+              </span>
+              <div className="space-y-1">
+                <p className="font-medium text-foreground">No posts yet</p>
+                <p className="text-sm text-muted-foreground">
+                  {isOwnProfile
+                    ? "You haven't posted anything yet."
+                    : `@${searchUser?.username} hasn't posted anything yet.`}
+                </p>
+              </div>
+              {isOwnProfile && (
+                <Link
+                  href="/new/say"
+                  className="inline-flex h-9 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                >
+                  Create your first post
+                </Link>
+              )}
+            </div>
+          )}
         </div>
       </div>
-
-      <div className="posts">{posts?.map((post) => {
-          if (post.post_type === "text") {
-            return <TextPost
-              isMine={post.author.username === user.username}
-              id={post.id}
-              author={{
-                username: post.author.username,
-                first_name: post.author.first_name,
-                last_name: post.author.last_name,
-                profile_img: post.author.profile.avatar
-              }}
-              content={post.content.content}
-              created_at={post.created_at}
-              updated_at={post.updated_at}
-              likes_count={post.likes_count}
-              is_liked={post.is_liked}
-              key={post.content.post}
-            />;
-          } else if (post.post_type === "image") {
-            return <ImagePost
-              isMine={post.author.username === user.username}
-              id={post.id}
-              author={{
-                username: post.author.username,
-                first_name: post.author.first_name,
-                last_name: post.author.last_name,
-                profile_img: post.author.profile.avatar
-              }}
-              image={post.content.image}
-              description={post.content.description}
-              created_at={post.created_at}
-              updated_at={post.updated_at}
-              likes_count={post.likes_count}
-              is_liked={post.is_liked}
-              key={post.content.post}
-            />;
-          }
-        })}</div>
-    </div>
-  )
+    </main>
+  );
 }
 
 export default UserPage;

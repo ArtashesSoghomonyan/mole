@@ -1,37 +1,40 @@
-import { useEffect, useState } from "react";
+"use client"
 
-import { FaRegMoon } from "react-icons/fa";
-import { GoSun } from "react-icons/go";
+import * as React from "react"
+import { Moon, Sun } from "@phosphor-icons/react"
+import { useTheme } from "next-themes"
 
-type Theme = "light" | "dark";
+import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
-const ThemeToggle = () => {
-  const getInitialTheme = (): Theme => {
-    const storedTheme = window.localStorage.getItem("theme");
-
-    if (storedTheme === "light" || storedTheme === "dark") {
-      return storedTheme;
-    } else {
-      return "light";
-    }
-  }
-
-  const [theme, setTheme] = useState<Theme>(getInitialTheme);
-
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-    window.localStorage.setItem("theme", theme);
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme(currentTheme => currentTheme === "dark" ? "light" : "dark");
-  }
+export function ThemeToggle() {
+  const { setTheme } = useTheme()
 
   return (
-    <span className="theme-toggle" onClick={toggleTheme} title="Theme">
-      {theme === "dark" ? <GoSun /> : <FaRegMoon />}
-    </span>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="icon">
+          <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+          <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+          <span className="sr-only">Toggle theme</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => setTheme("light")}>
+          Light
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("dark")}>
+          Dark
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("system")}>
+          System
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
-
-export default ThemeToggle;

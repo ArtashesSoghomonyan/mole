@@ -2,11 +2,21 @@
 
 import { use, useEffect, useState, useRef } from "react";
 import { redirect, useRouter } from "next/navigation";
+import Link from "next/link";
 import axios from "axios";
+import {
+  ArrowLeftIcon,
+  ImageIcon,
+  NotePencilIcon,
+  WarningCircleIcon,
+  XIcon,
+} from "@phosphor-icons/react";
 
 import { Post } from "@/types/posts";
 import { useAuth } from "@/context/AuthContext";
-import "./style.css";
+import { mediaUrl } from "@/utils";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 
 
 const PostEditPage = ({
@@ -34,10 +44,7 @@ const PostEditPage = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const postIdNum = Number(postid);
-
-  if (isNaN(postIdNum)) {
-    return <h1>Oops! Invalid postid, it should be an integer.</h1>
-  }
+  const invalidId = isNaN(postIdNum);
 
   useEffect(() => {
     if (loading) return;
@@ -62,7 +69,7 @@ const PostEditPage = ({
         } else if (fetchedPost.post_type === "image") {
           const imageContent = fetchedPost.content as unknown as { image: string; description: string | null };
           setDescription(imageContent.description || "");
-          setPreview(`${process.env.NEXT_PUBLIC_BACKEND_URL}/${imageContent.image}`);
+          setPreview(mediaUrl(imageContent.image));
         }
       } catch (error) {
         if (axios.isAxiosError(error)) {
@@ -84,13 +91,22 @@ const PostEditPage = ({
     }
 
     fetchPost();
-  }, [loading])
+  }, [loading, postIdNum]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setImage(file);
       setPreview(URL.createObjectURL(file));
+      setMessage("");
+    }
+  };
+
+  const clearImage = () => {
+    setImage(null);
+    setPreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
 
@@ -147,8 +163,20 @@ const PostEditPage = ({
     }
   }
 
+  if (invalidId) {
+    return (
+      <main className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-muted/20 px-4">
+        <ErrorState title="Invalid post" message="The post ID should be a valid number." />
+      </main>
+    );
+  }
+
   if (loading || postLoading) {
-    return <h1>Loading</h1>;
+    return (
+      <main className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-muted/20">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-muted border-t-primary" />
+      </main>
+    );
   }
 
   if (!user) {
@@ -156,13 +184,19 @@ const PostEditPage = ({
   }
 
   if (fetchError) {
-    return <div className="container">
-      <h1>{fetchError}</h1>
-    </div>;
+    return (
+      <main className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-muted/20 px-4">
+        <ErrorState title="Something went wrong" message={fetchError} />
+      </main>
+    );
   }
 
   if (notFound) {
-    return <h1>Oops! Post N:{postid} does not exist.</h1>;
+    return (
+      <main className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-muted/20 px-4">
+        <ErrorState title="Post not found" message={`The post #${postid} does not exist.`} />
+      </main>
+    );
   }
 
   if (!post) {
@@ -170,62 +204,149 @@ const PostEditPage = ({
   }
 
   if (post.author.username !== user.username) {
-    return <div className="container">
-      <h1>You are not the author of this post.</h1>
-    </div>;
+    return (
+      <main className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-muted/20 px-4">
+        <ErrorState title="Not authorized" message="You are not the author of this post." />
+      </main>
+    );
   }
 
-  if (post.post_type === "text") {
-    return <div className="container">
-      <form onSubmit={handleSubmit}>
-        <h1>Edit text post.</h1>
-        <p style={{ color: "red" }}>{message}</p>
-        <textarea
-          value={textContent}
-          onChange={e => setTextContent(e.target.value)}
-          placeholder="Type your thoughts here..."
-        />
-        <button type="submit" className="btn btn-filled" disabled={saving}>
-          {saving ? "Saving..." : "Save"}
-        </button>
-      </form>
-    </div>;
-  } else if (post.post_type === "image") {
-    return <div className="container">
-      <form onSubmit={handleSubmit}>
-        <h1>Edit image post.</h1>
-        <p style={{ color: "red" }}>{message}</p>
+  const isTextPost = post.post_type === "text";
 
-        {preview ? (
-          <img className="image" src={preview} alt="Preview" />
-        ) : (
-          <div
-            className="image-placeholder"
-            onClick={() => fileInputRef.current?.click()}
+  return (
+    <main className="min-h-[calc(100vh-4rem)] bg-muted/20 px-4 py-8">
+      <div className="mx-auto w-full max-w-2xl">
+        <div className="mb-4">
+          <Link
+            href={`/p/${postIdNum}`}
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
-            Click to select an image
+            <ArrowLeftIcon className="size-4" />
+            Back to post
+          </Link>
+        </div>
+
+        <form
+          onSubmit={handleSubmit}
+          className="overflow-hidden rounded-2xl border border-border bg-card text-card-foreground shadow-sm"
+        >
+          <header className="flex items-center gap-3 border-b border-border/80 px-5 py-4">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              {isTextPost ? (
+                <NotePencilIcon className="size-5" />
+              ) : (
+                <ImageIcon className="size-5" />
+              )}
+            </span>
+            <div>
+              <h1 className="text-lg font-semibold tracking-tight">
+                Edit {isTextPost ? "text" : "image"} post
+              </h1>
+              <p className="text-sm text-muted-foreground">Update your post details.</p>
+            </div>
+          </header>
+
+          <div className="space-y-4 px-5 py-5">
+            {message && (
+              <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">{message}</p>
+            )}
+
+            {isTextPost ? (
+              <Textarea
+                value={textContent}
+                onChange={e => setTextContent(e.target.value)}
+                placeholder="Type your thoughts here..."
+                rows={6}
+                className="min-h-32 resize-y"
+              />
+            ) : (
+              <>
+                {preview ? (
+                  <div className="group relative overflow-hidden rounded-xl border border-border">
+                    <img src={preview} alt="Preview" className="max-h-96 w-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={clearImage}
+                      className="absolute top-2 right-2 inline-flex size-8 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80"
+                      aria-label="Remove image"
+                    >
+                      <XIcon className="size-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex min-h-56 w-full flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-border bg-muted/20 px-4 py-10 text-center transition-colors hover:border-ring hover:bg-muted/40"
+                  >
+                    <span className="flex size-14 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                      <ImageIcon className="size-7" />
+                    </span>
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium text-foreground">Click to select an image</p>
+                      <p className="text-xs text-muted-foreground">JPG, PNG or GIF. Any size works.</p>
+                    </div>
+                  </button>
+                )}
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+
+                <Textarea
+                  value={description}
+                  onChange={e => setDescription(e.target.value)}
+                  placeholder="Description goes here (Optional)"
+                  rows={3}
+                  className="min-h-20 resize-y"
+                />
+              </>
+            )}
           </div>
-        )}
 
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          onChange={handleImageChange}
-          style={{ display: "none" }}
-        />
+          <footer className="flex items-center justify-end gap-3 border-t border-border/80 bg-muted/20 px-5 py-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.back()}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={saving || (isTextPost && !textContent)}
+            >
+              {saving ? "Saving..." : "Save changes"}
+            </Button>
+          </footer>
+        </form>
+      </div>
+    </main>
+  );
+}
 
-        <textarea
-          value={description}
-          onChange={e => setDescription(e.target.value)}
-          placeholder="Description goes here (Optional)"
-        />
-        <button type="submit" className="btn btn-filled" disabled={saving}>
-          {saving ? "Saving..." : "Save"}
-        </button>
-      </form>
-    </div>;
-  }
+function ErrorState({ title, message }: { title: string; message: string }) {
+  return (
+    <div className="flex flex-col items-center gap-4 text-center">
+      <span className="flex size-16 items-center justify-center rounded-full bg-muted text-muted-foreground">
+        <WarningCircleIcon className="size-8" />
+      </span>
+      <div className="space-y-1">
+        <h1 className="text-xl font-semibold text-foreground">{title}</h1>
+        <p className="text-sm text-muted-foreground">{message}</p>
+      </div>
+      <Link
+        href="/"
+        className="inline-flex h-9 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+      >
+        Back to home
+      </Link>
+    </div>
+  );
 }
 
 export default PostEditPage;

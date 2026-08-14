@@ -2,12 +2,10 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { FaPaperPlane } from "react-icons/fa";
+import { PaperPlaneTilt } from "@phosphor-icons/react";
 
 import { DateFormat } from "@/utils";
 import { Comment } from "@/types/posts";
-import "./posts.css";
-
 
 type pageProps = {
   postId: number
@@ -20,25 +18,25 @@ const CommentSection = ({ postId, showComments, onCommentCount }: pageProps) => 
   const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(true);
 
-  const fetchComments = async () => {
-    try {
-      const token = localStorage.getItem("accessToken");
-      const response = await axios.get<Comment[]>(
-        `${process.env.NEXT_PUBLIC_API_URL}/comments/?post=${postId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setComments(response.data);
-      onCommentCount?.(response.data.length);
-    } catch (error) {
-      console.error("Failed to fetch comments:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchComments();
-  }, [postId]);
+    const fetchComments = async () => {
+      try {
+        const token = localStorage.getItem("accessToken");
+        const response = await axios.get<Comment[]>(
+          `${process.env.NEXT_PUBLIC_API_URL}/comments/?post=${postId}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setComments(response.data);
+        onCommentCount?.(response.data.length);
+      } catch (error) {
+        console.error("Failed to fetch comments:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void fetchComments();
+  }, [onCommentCount, postId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,34 +59,39 @@ const CommentSection = ({ postId, showComments, onCommentCount }: pageProps) => 
   if (!showComments) return null;
 
   return (
-    <div className="comment-section">
-      <div className="comments-container">
-        <form className="comment-input-form" onSubmit={handleSubmit}>
+    <section className="border-t border-border bg-muted/20 px-4 py-4">
+      <div className="mx-auto max-w-2xl">
+        <form className="flex gap-2" onSubmit={handleSubmit}>
           <input
             type="text"
             placeholder="Write a comment..."
             value={newComment}
             onChange={e => setNewComment(e.target.value)}
-            className="comment-input"
+            className="h-9 min-w-0 flex-1 rounded-lg border border-input bg-background px-3 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50"
           />
-          <button type="submit" className="comment-submit" disabled={!newComment.trim()}>
-            <FaPaperPlane />
+          <button
+            type="submit"
+            className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-colors hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50"
+            disabled={!newComment.trim()}
+            aria-label="Post comment"
+          >
+            <PaperPlaneTilt className="size-4" />
           </button>
         </form>
 
         {loading ? (
-          <p className="comments-loading">Loading comments...</p>
+          <p className="py-6 text-center text-sm text-muted-foreground">Loading comments...</p>
         ) : comments.length === 0 ? (
-          <p className="comments-empty">No comments yet.</p>
+          <p className="py-6 text-center text-sm text-muted-foreground">No comments yet.</p>
         ) : (
-          <div className="comments-list">
+          <div className="mt-4 space-y-3">
             {comments.map(comment => (
               <CommentItem key={comment.id} comment={comment} postId={postId} />
             ))}
           </div>
         )}
       </div>
-    </div>
+    </section>
   );
 };
 
@@ -138,53 +141,54 @@ const CommentItem = ({ comment, postId }: { comment: Comment; postId: number }) 
   };
 
   return (
-    <div className="comment">
-      <div className="comment-header">
-        <span className="comment-author">{comment.author.first_name} {comment.author.last_name}</span>
-        <span className="comment-time">{DateFormat(comment.created_at)}</span>
+    <article className="rounded-lg bg-background/70 p-3 shadow-sm ring-1 ring-border/60">
+      <div className="flex items-start justify-between gap-3">
+        <span className="font-medium">{comment.author.first_name} {comment.author.last_name}</span>
+        <span className="shrink-0 text-xs text-muted-foreground">{DateFormat(comment.created_at)}</span>
       </div>
-      <p className="comment-text">{comment.text}</p>
-      <div className="comment-actions">
-        <button className="comment-reply-btn" onClick={() => setShowReplyInput(!showReplyInput)}>
-          Reply
-        </button>
-      </div>
+      <p className="mt-1 whitespace-pre-wrap break-words text-sm leading-6">{comment.text}</p>
+      <button type="button" className="mt-2 text-xs font-medium text-muted-foreground transition-colors hover:text-primary" onClick={() => setShowReplyInput(!showReplyInput)}>Reply</button>
 
       {showReplyInput && (
-        <form className="reply-input-form" onSubmit={handleReply}>
+        <form className="mt-3 flex gap-2" onSubmit={handleReply}>
           <input
             type="text"
             placeholder="Write a reply..."
             value={replyText}
             onChange={e => setReplyText(e.target.value)}
-            className="comment-input"
+            className="h-8 min-w-0 flex-1 rounded-md border border-input bg-background px-2.5 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50"
           />
-          <button type="submit" className="comment-submit" disabled={!replyText.trim()}>
-            <FaPaperPlane />
+          <button
+            type="submit"
+            className="inline-flex size-8 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground transition-colors hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50"
+            disabled={!replyText.trim()}
+            aria-label="Post reply"
+          >
+            <PaperPlaneTilt className="size-4" />
           </button>
         </form>
       )}
 
       {replies.length > 0 && (
-        <button className="show-replies-btn" onClick={toggleReplies}>
+        <button type="button" className="mt-3 text-xs font-medium text-primary hover:underline" onClick={toggleReplies}>
           {showReplies ? "Hide replies" : `View ${replies.length} ${replies.length === 1 ? "reply" : "replies"}`}
         </button>
       )}
 
       {showReplies && (
-        <div className="replies">
+        <div className="mt-3 space-y-3 border-l-2 border-border pl-3">
           {replies.map(reply => (
-            <div key={reply.id} className="comment reply">
-              <div className="comment-header">
-                <span className="comment-author">{reply.author.first_name} {reply.author.last_name}</span>
-                <span className="comment-time">{DateFormat(reply.created_at)}</span>
+            <article key={reply.id} className="rounded-md bg-muted/50 p-3">
+              <div className="flex items-start justify-between gap-3">
+                <span className="font-medium text-sm">{reply.author.first_name} {reply.author.last_name}</span>
+                <span className="shrink-0 text-xs text-muted-foreground">{DateFormat(reply.created_at)}</span>
               </div>
-              <p className="comment-text">{reply.text}</p>
-            </div>
+              <p className="mt-1 whitespace-pre-wrap break-words text-sm leading-6">{reply.text}</p>
+            </article>
           ))}
         </div>
       )}
-    </div>
+    </article>
   );
 };
 

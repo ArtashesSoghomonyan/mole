@@ -8,3 +8,4 @@
 [._]sw[a-p]
 
 todo.md
+.pnpm-store/
