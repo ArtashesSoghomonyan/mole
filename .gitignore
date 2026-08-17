@@ -8,4 +8,5 @@
 [._]sw[a-p]
 
 todo.md
+*.rdb
 .pnpm-store/

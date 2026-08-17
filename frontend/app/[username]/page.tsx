@@ -5,25 +5,15 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import axios from "axios";
 import { UsersIcon } from "@phosphor-icons/react";
+import { Button } from "@/components/ui/button";
 
 import { useAuth } from "@/context/AuthContext";
 import { Post } from "@/types/posts";
+import { SearchUserProfile } from "@/types/auth";
 import { mediaUrl } from "@/utils";
 import TextPost from "@/components/TextPost";
 import ImagePost from "@/components/ImagePost";
 
-type UserProfile = {
-  username: string;
-  first_name: string;
-  last_name: string;
-  followers_count: number;
-  following_count: number;
-  is_following: boolean;
-  profile: {
-    avatar: string | null;
-    bio: string | null;
-  };
-};
 
 const UserPage = ({
   params,
@@ -32,7 +22,7 @@ const UserPage = ({
 }) => {
   const { username } = use(params);
   const { user, loading } = useAuth();
-  const [searchUser, setSearchUser] = useState<UserProfile | null>(null);
+  const [searchUser, setSearchUser] = useState<SearchUserProfile | null>(null);
   const [posts, setPosts] = useState<Post[] | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
@@ -40,7 +30,7 @@ const UserPage = ({
   useEffect(() => {
     const fetchSearchUser = async () => {
       try {
-        const response = await axios.get<{ user: UserProfile; posts: Post[] }>(`${process.env.NEXT_PUBLIC_API_URL}/users/${username}/`, {
+        const response = await axios.get<{ user: SearchUserProfile; posts: Post[] }>(`${process.env.NEXT_PUBLIC_API_URL}/users/${username}/`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
         });
 
@@ -76,6 +66,25 @@ const UserPage = ({
       }
     } catch (error) {
       console.error("Failed to toggle follow:", error);
+    }
+  };
+
+  const handleMessages = async () => {
+    const token = localStorage.getItem("accessToken");
+    if (!token  || !user || !searchUser) return;
+
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/chat/conversations/`,
+        {
+          participant_ids: [searchUser?.id]
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      console.log(response.data.id);
+    } catch (error) {
+      console.error("Failed to DM: ", error);
     }
   };
 
@@ -205,17 +214,11 @@ const UserPage = ({
                     Edit Profile
                   </Link>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={handleFollowToggle}
-                    className={`inline-flex h-9 items-center justify-center rounded-lg px-4 text-sm font-medium transition-colors ${
-                      isFollowing
-                        ? "border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground"
-                        : "bg-primary text-primary-foreground hover:bg-primary/90"
-                    }`}
-                  >
-                    {isFollowing ? "Unfollow" : "Follow"}
-                  </button>
+                  <div className="flex gap-3">
+                    <Button onClick={handleFollowToggle} variant={isFollowing ? "outline" : ""}>{isFollowing ? "Unfollow" : "Follow"}</Button>
+                    {/* TODO: Disable the button if the user only wants to allow messages only from followers */}
+                    <Button onClick={handleMessages} variant="outline">Message</Button>
+                  </div>
                 )}
               </div>
             </div>

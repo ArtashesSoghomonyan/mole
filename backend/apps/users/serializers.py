@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
-from .models import DeletedUserEmail, Follow, FORBIDDEN_USERNAMES, Profile
+from .models import FORBIDDEN_USERNAMES, DeletedUserEmail, Follow, Profile
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -37,6 +37,7 @@ class SearchUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
         fields = [
+            "id",
             "username",
             "first_name",
             "last_name",
@@ -106,4 +107,3 @@ class FollowSerializer(serializers.ModelSerializer):
         model = Follow
         fields = ["id", "user_from", "user_to", "created_at"]
         read_only_fields = ["id", "user_from", "created_at"]
-

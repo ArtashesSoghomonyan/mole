@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import {
   ArrowLeftIcon,
@@ -27,6 +27,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
 export default function ChatPage() {
+  const searchParams = useSearchParams();
+  const conversationId = searchParams.get("id");
   const router = useRouter();
   const { user, loading } = useAuth();
   const socketRef = useRef<WebSocket | null>(null);
@@ -50,6 +52,14 @@ export default function ChatPage() {
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setConversations(response.data);
+
+        // Load conversation by GET query "id" parameter if available and valid
+        const targetId = Number(conversationId);
+        const target = response.data.find((c) => c.id === targetId);
+        if (target) {
+          setActiveConversation(target);
+          alert();
+        }
       } catch (error) {
         console.error("Failed to fetch conversations:", error);
       } finally {
@@ -58,7 +68,7 @@ export default function ChatPage() {
     };
 
     fetchConversations();
-  }, [user, loading]);
+  }, [user, loading, conversationId]);
 
   // Scroll to bottom when new messages arrive
   useEffect(() => {
