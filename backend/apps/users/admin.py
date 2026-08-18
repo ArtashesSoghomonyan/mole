@@ -17,7 +17,6 @@ class UserAdmin(admin.ModelAdmin):
         "last_name",
         "date_joined",
         "last_login",
-        "is_admin",
         "is_active",
         "is_staff",
         "is_superuser",
@@ -25,9 +24,9 @@ class UserAdmin(admin.ModelAdmin):
         "followers_count",
         "following_count",
     )
-    list_filter = ("date_joined", "last_login", "is_admin", "is_staff", "is_superuser", "is_verified", "followers_count")
+    list_filter = ("date_joined", "last_login", "is_staff", "is_superuser", "is_verified")
     search_fields = ("username", "email", "first_name", "last_name")
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ("id", "user", "following", "avatar", "bio")
+    list_display = ("id", "user", "avatar", "bio")

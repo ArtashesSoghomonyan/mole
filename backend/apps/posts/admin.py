@@ -26,5 +26,5 @@ class PostLikeAdmin(admin.ModelAdmin):
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    list_filter = ("author", "post", "parent", "is_reply")
+    list_filter = ("author", "post", "parent")
     list_display = ("id", "author", "post", "parent", "text", "created_at", "updated_at", "is_reply")
