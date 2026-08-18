@@ -1,7 +1,7 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import Link from "next/link";
 import axios from "axios";
 import { UsersIcon } from "@phosphor-icons/react";
@@ -21,6 +21,7 @@ const UserPage = ({
   params: Promise<{ username: string }>
 }) => {
   const { username } = use(params);
+  const router = useRouter();
   const { user, loading } = useAuth();
   const [searchUser, setSearchUser] = useState<SearchUserProfile | null>(null);
   const [posts, setPosts] = useState<Post[] | null>(null);
@@ -82,7 +83,9 @@ const UserPage = ({
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      console.log(response.data.id);
+      // redirect() only works in server components / server actions — in a
+      // client-side event handler use useRouter().push() instead.
+      router.push(`/chat/?id=${response.data.id}`);
     } catch (error) {
       console.error("Failed to DM: ", error);
     }

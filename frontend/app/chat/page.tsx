@@ -70,7 +70,6 @@ function ChatPageContent() {
         const target = response.data.find((c) => c.id === targetId);
         if (target) {
           setActiveConversation(target);
-          alert();
         }
       } catch (error) {
         console.error("Failed to fetch conversations:", error);
@@ -81,6 +80,36 @@ function ChatPageContent() {
 
     fetchConversations();
   }, [user, loading, conversationId]);
+
+  // Load message history whenever the active conversation changes. This covers
+  // both clicking a conversation AND landing directly on /chat/?id=<n> (where
+  // activeConversation is set by the conversations effect but no click happens).
+  useEffect(() => {
+    if (!activeConversation || !user) return;
+
+    let cancelled = false;
+    const fetchMessages = async () => {
+      setMessagesLoading(true);
+      setMessages([]);
+      try {
+        const token = localStorage.getItem("accessToken");
+        const response = await axios.get<Message[]>(
+          `${process.env.NEXT_PUBLIC_API_URL}/chat/conversations/${activeConversation.id}/messages/`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        if (!cancelled) setMessages(response.data);
+      } catch (error) {
+        console.error("Failed to load conversation messages", error);
+      } finally {
+        if (!cancelled) setMessagesLoading(false);
+      }
+    };
+
+    fetchMessages();
+    return () => {
+      cancelled = true;
+    };
+  }, [activeConversation, user]);
 
   // Scroll to bottom when new messages arrive
   useEffect(() => {
@@ -133,25 +162,17 @@ function ChatPageContent() {
     }
   };
 
-  const selectConversation = async (conversation: Conversation) => {
-    try {
-      const token = localStorage.getItem("accessToken");
-      setActiveConversation(conversation);
-      setMessagesLoading(true);
-      const response = await axios.get<Message[]>(
-        `${process.env.NEXT_PUBLIC_API_URL}/chat/conversations/${conversation.id}/messages/`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setMessages(response.data);
-    } catch (error) {
-      console.error("Failed to load conversation messages", error);
-    } finally {
-      setMessagesLoading(false);
-    }
+  const selectConversation = (conversation: Conversation) => {
+    // Message history is loaded by the effect above when activeConversation changes.
+    setActiveConversation(conversation);
   };
 
   const getConversationTitle = (conversation: Conversation): string => {
     if (conversation.title) return conversation.title;
+    if (conversation.participants.length === 2) {
+      const secondUsername = conversation.participants.filter(p => p.id !== user?.id)[0].username;
+      return `DM with @${secondUsername}`;
+    }
     return conversation.participants
       .filter((p) => p.id !== user?.id)
       .map((p) => p.username)
