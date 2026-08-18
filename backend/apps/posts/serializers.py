@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from apps.users.serializers import SearchUserSerializer
 
-from .models import Comment, ImagePost, Post, PostLike, TextPost
+from apps.posts.models import Comment, ImagePost, Post, PostLike, TextPost
 
 
 class PostSerializer(serializers.ModelSerializer):

@@ -3,7 +3,7 @@ import json
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 
-from .models import Conversation, Message
+from apps.chat.models import Conversation, Message
 
 MAX_MESSAGE_LENGTH = 2000
 

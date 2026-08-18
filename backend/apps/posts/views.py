@@ -4,9 +4,9 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from .feed import get_scored_post_queryset
-from .models import Comment, ImagePost, Post, PostLike, TextPost
-from .serializers import CommentSerializer, PostSerializer, ReplySerializer
+from apps.posts.feed import get_scored_post_queryset
+from apps.posts.models import Comment, ImagePost, Post, PostLike, TextPost
+from apps.posts.serializers import CommentSerializer, PostSerializer, ReplySerializer
 
 
 class FeedPagination(PageNumberPagination):

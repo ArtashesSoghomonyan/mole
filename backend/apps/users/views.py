@@ -10,9 +10,9 @@ from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 
 from apps.posts.models import Post
 from apps.posts.serializers import PostSerializer
-from .models import DeletedUserEmail, Follow, Profile
-from .permissions import IsAnonymous
-from .serializers import (
+from apps.users.models import DeletedUserEmail, Follow, Profile
+from apps.users.permissions import IsAnonymous
+from apps.users.serializers import (
     FollowSerializer,
     ProfileSerializer,
     RegisterSerializer,

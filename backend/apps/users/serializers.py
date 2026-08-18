@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
-from .models import FORBIDDEN_USERNAMES, DeletedUserEmail, Follow, Profile
+from apps.users.models import FORBIDDEN_USERNAMES, DeletedUserEmail, Follow, Profile
 
 
 class ProfileSerializer(serializers.ModelSerializer):

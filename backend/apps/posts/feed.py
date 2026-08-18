@@ -1,7 +1,7 @@
 from django.db.models import Count, F, Value, FloatField, ExpressionWrapper, Func
 from django.db.models.functions import Now
 
-from .models import Post
+from apps.posts.models import Post
 
 
 class EpochSeconds(Func):
