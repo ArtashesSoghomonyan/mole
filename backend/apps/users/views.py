@@ -73,7 +73,6 @@ class RegisterView(APIView):
         serializer = RegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        Profile.objects.create(user=user)
         result = UserSerializer(user).data
         return Response(result, status=status.HTTP_201_CREATED)
 

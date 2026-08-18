@@ -16,8 +16,6 @@ class ProfileTests(APITestCase):
             password="password123",
         )
 
-        Profile.objects.create(user=user)
-
         self.client.force_authenticate(user=user)
 
         bio = "new bio test"

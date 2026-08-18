@@ -132,10 +132,9 @@ class Command(BaseCommand):
             )
             user.is_verified = fake.boolean(chance_of_getting_true=80)
             user.save(update_fields=["is_verified"])
-            profile = Profile.objects.create(
-                user=user,
-                bio=fake.text(max_nb_chars=200),
-            )
+            profile = Profile.objects.get(user=user)
+            profile.bio = fake.text(max_nb_chars=200)
+            profile.save()
             users.append((user, profile))
             self.stdout.write(f"  Created {user}")
 
