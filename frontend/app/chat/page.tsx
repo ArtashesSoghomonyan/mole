@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import {
@@ -26,7 +26,19 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
+// Chat pages are fully client-side and rely on WebSockets/auth, so they must
+// never be statically prerendered. useSearchParams() also requires a Suspense
+// boundary during prerendering (see
+// https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout).
 export default function ChatPage() {
+  return (
+    <Suspense>
+      <ChatPageContent />
+    </Suspense>
+  );
+}
+
+function ChatPageContent() {
   const searchParams = useSearchParams();
   const conversationId = searchParams.get("id");
   const router = useRouter();

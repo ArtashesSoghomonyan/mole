@@ -56,6 +56,11 @@ if DEBUG:
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    # WhiteNoise serves /static/ files from STATIC_ROOT. Required because
+    # daphne (the ASGI server used in production compose) does NOT serve
+    # static files itself — without this the admin panel has no CSS.
+    # Must stay directly after SecurityMiddleware.
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -151,7 +156,22 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
+
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# WhiteNoise storage backend: gzip-compresses files during collectstatic and
+# serves them with long cache headers. (CompressedStaticFilesStorage instead
+# of CompressedManifestStaticFilesStorage — no hashed filenames, so nothing
+# breaks if a template references a file that wasn't collected.)
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    },
+}
 
 MEDIA_URL = "/media/"
 
@@ -181,7 +201,12 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)], # Assumes you have Redis running locally
+            "hosts": [
+                (
+                    env.str("REDIS_HOST", default="127.0.0.1"),
+                    env.int("REDIS_PORT", default=6379),
+                )
+            ],
         },
     },
 }

@@ -17,6 +17,7 @@ dependencies = [
     "pillow>=12.2.0",
     "psycopg2-binary>=2.9.12",
     "uvicorn>=0.49.0",
+    "whitenoise>=6.12.0",
 ]
 
 [dependency-groups]

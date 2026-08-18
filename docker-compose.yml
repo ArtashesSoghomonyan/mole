@@ -1,0 +1,81 @@
+# docker compose up --build
+#
+# Values use ${VAR:-default} so `docker compose up` works out of the box for
+# local development. Override any of them by creating a `.env` file in this
+# directory (docker-compose reads it automatically).
+
+services:
+  # ---------------------------------------------------------------------------
+  # PostgreSQL — used by Django as its primary database
+  # ---------------------------------------------------------------------------
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: ${DB_NAME:-mole}
+      POSTGRES_USER: ${DB_USER:-moleuser}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-moleuser} -d ${DB_NAME:-mole}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ---------------------------------------------------------------------------
+  # Redis — required by Django Channels as the channel layer (WebSockets)
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+
+  # ---------------------------------------------------------------------------
+  # Django backend — runs migrations then starts daphne (ASGI)
+  # ---------------------------------------------------------------------------
+  backend:
+    build: ./backend
+    # Daphne is needed (not runserver/gunicorn) for WebSocket support.
+    command: sh -c "python manage.py migrate && python manage.py collectstatic --noinput && daphne config.asgi:application -b 0.0.0.0 -p 8000"
+    environment:
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-key-change-me}
+      DEBUG: ${DEBUG:-true}
+      # ALLOWED_HOSTS is parsed by environs env.list() -> comma-separated
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost,127.0.0.1}
+      # Custom path for the Django admin panel
+      ADMIN_PATH: ${ADMIN_PATH:-admin}
+      DB_NAME: ${DB_NAME:-mole}
+      DB_USER: ${DB_USER:-moleuser}
+      DB_PASSWORD: ${DB_PASSWORD:-password}
+      DB_HOST: db
+      DB_PORT: 5432
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    volumes:
+      # Persist uploaded images across container rebuilds
+      - media:/app/media
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  # ---------------------------------------------------------------------------
+  # Next.js frontend — serves the built app on port 3000
+  # ---------------------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # Inlined into the browser bundle at build time. The browser reaches
+        # the backend on the host, so localhost:8000 is correct for local dev.
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000/api}
+        NEXT_PUBLIC_WS_URL: ${NEXT_PUBLIC_WS_URL:-ws://localhost:8000}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  media:

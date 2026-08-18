@@ -215,7 +215,7 @@ const UserPage = ({
                   </Link>
                 ) : (
                   <div className="flex gap-3">
-                    <Button onClick={handleFollowToggle} variant={isFollowing ? "outline" : ""}>{isFollowing ? "Unfollow" : "Follow"}</Button>
+                    <Button onClick={handleFollowToggle} variant={isFollowing ? "outline" : "default"}>{isFollowing ? "Unfollow" : "Follow"}</Button>
                     {/* TODO: Disable the button if the user only wants to allow messages only from followers */}
                     <Button onClick={handleMessages} variant="outline">Message</Button>
                   </div>
