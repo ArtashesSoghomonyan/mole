@@ -1,11 +1,22 @@
+# Dependencies (reinstalled inside the image)
 node_modules
+.pnpm-store
+
+# Build output (rebuilt inside the image)
 .next
 out
-build
-.env*
+
+# Version control
 .git
 .gitignore
-*.tsbuildinfo
-next-env.d.ts
-.eslintrc.json
-.eslintrc
+
+# Environment files (secrets / build-time vars must not be baked in)
+.env
+.env.*
+
+# TypeScript incremental build cache
+tsconfig.tsbuildinfo
+
+# Docs / editor cruft
+*.md
+.editorconfig

@@ -1,61 +1,55 @@
-# Development docker-compose file
-# For production, use docker-compose.yml instead
-services:
-  db:
-    image: postgres:16-alpine
-    restart: unless-stopped
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    environment:
-      POSTGRES_DB: ${DB_NAME:-mole}
-      POSTGRES_USER: ${DB_USER:-mole}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-mole}
-    ports:
-      - "5432:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-mole} -d ${DB_NAME:-mole}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+# Development override — hot-reload dev servers for both apps.
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+#
+# (Or export COMPOSE_FILE="docker-compose.yml:docker-compose.dev.yml" once
+#  and then just use plain `docker compose up --build`.)
+#
+# What it changes vs. the default `docker compose up`:
+#   - backend : runs `manage.py runserver` (auto-reloads on .py changes)
+#               instead of daphne. WebSockets still work because `daphne`
+#               is in INSTALLED_APPS, so runserver serves the ASGI app.
+#   - frontend: runs `next dev` (HMR / fast refresh) with the source
+#               bind-mounted, instead of serving the production build.
+#   - Source code is bind-mounted, so edits are picked up instantly.
+#     No image rebuild needed for code changes — only for dependency
+#     changes (pyproject.toml / uv.lock, package.json / pnpm-lock.yaml).
+#
+# Teardown that also removes anonymous dev volumes:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml down -v
 
+services:
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile.dev
-    restart: unless-stopped
+    command: sh -c "python manage.py migrate && python manage.py collectstatic --noinput && python manage.py runserver 0.0.0.0:8000"
     volumes:
-      - ./backend:/app
-      - media_data:/app/media
-    env_file:
-      - ./backend/.env
-    environment:
-      DB_HOST: db
-      DB_PORT: 5432
-    ports:
-      - "8000:8000"
-    depends_on:
-      db:
-        condition: service_healthy
-    command: >
-      sh -c "python manage.py migrate &&
-             python manage.py runserver 0.0.0.0:8000"
+      # Live source code, mounted at its image paths. IMPORTANT: do NOT bind
+      # the whole ./backend over /app — that hides the image's /app/.venv
+      # and the container then can't find Django. These three mounts give hot
+      # reload while keeping the venv intact.
+      - ./backend/apps:/app/apps
+      - ./backend/config:/app/config
+      - ./backend/manage.py:/app/manage.py
+      # If you add a new top-level directory/file to backend/ that Django
+      # needs at runtime (e.g. scripts/), add a mount for it here.
+      #
+      # Uploaded media (persisted across rebuilds, see base compose).
+      - media:/app/media
 
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile.dev
-    restart: unless-stopped
+      # Build only up to the `deps` stage (base + node_modules from the
+      # lockfile); the production `next build` output isn't needed for dev.
+      target: deps
+    command: sh -c "pnpm dev -H 0.0.0.0"
+    environment:
+      # `next dev` inlines NEXT_PUBLIC_* from the environment at compile time.
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000/api}
+      NEXT_PUBLIC_WS_URL: ${NEXT_PUBLIC_WS_URL:-ws://localhost:8000}
     volumes:
+      # Live source code.
       - ./frontend:/app
+      # Anonymous volumes keep node_modules and the .next cache inside the
+      # container (fast startup, no host/container platform mismatch).
       - /app/node_modules
       - /app/.next
-    ports:
-      - "3000:3000"
-    environment:
-      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
-    depends_on:
-      - backend
-
-volumes:
-  postgres_data:
-  media_data:

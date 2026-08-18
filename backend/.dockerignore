@@ -1,12 +1,25 @@
-.venv
-__pycache__/
-*.py[oc]
-*.egg-info
-.env
-*.db
-*.sqlite3
-media/
-test.http
+# Version control
 .git
 .gitignore
-.python-version
+
+# Python virtual environment (rebuilt inside the image)
+.venv
+__pycache__
+*.pyc
+*.pyo
+
+# Environment files (secrets must never be baked into an image)
+.env
+.env.*
+
+# Uploaded media (mounted as a volume at runtime, not part of the image)
+media
+dump.rdb
+
+# Local scratch data (test_data/dog.jpg is needed at runtime by the
+# `createdummydata --no-online-images` management command)
+test.http
+
+# Docs / editor cruft
+*.md
+.editorconfig

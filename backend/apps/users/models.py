@@ -15,6 +15,7 @@ username_validator = RegexValidator(
 FORBIDDEN_USERNAMES = [
     "register",
     "profile",
+    "messages",
 ]
 
 def validate_username_not_forbidden(value):
