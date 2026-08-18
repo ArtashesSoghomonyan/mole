@@ -8,6 +8,7 @@ import { ArrowLeftIcon, WarningCircleIcon } from "@phosphor-icons/react";
 
 import { Post } from "@/types/posts";
 import { useAuth } from "@/context/AuthContext";
+import Spinner from "@/components/Spinner";
 import TextPost from "@/components/TextPost";
 import ImagePost from "@/components/ImagePost";
 
@@ -54,33 +55,7 @@ const PostDetailPage = ({
   }
 
   if (loading || postLoading) {
-    return (
-      <main className="min-h-[calc(100vh-4rem)] bg-muted/20">
-        <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 px-4 py-6">
-          {Array.from({ length: 2 }).map((_, i) => (
-            <div key={i} className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
-              <div className="flex items-center gap-3 p-4">
-                <div className="size-10 shrink-0 animate-pulse rounded-full bg-muted" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-3 w-32 animate-pulse rounded bg-muted" />
-                  <div className="h-2.5 w-24 animate-pulse rounded bg-muted" />
-                </div>
-              </div>
-              <div className="space-y-2.5 border-y border-border px-4 py-5">
-                <div className="h-3 w-full animate-pulse rounded bg-muted" />
-                <div className="h-3 w-4/5 animate-pulse rounded bg-muted" />
-                <div className="h-3 w-2/3 animate-pulse rounded bg-muted" />
-              </div>
-              <div className="flex items-center gap-5 px-4 py-3">
-                <div className="size-5 animate-pulse rounded bg-muted" />
-                <div className="size-5 animate-pulse rounded bg-muted" />
-                <div className="size-5 animate-pulse rounded bg-muted" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </main>
-    );
+    return <Spinner />;
   }
 
   if (!user) {

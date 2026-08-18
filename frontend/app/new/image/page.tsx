@@ -8,6 +8,7 @@ import { ImageIcon, XIcon } from "@phosphor-icons/react";
 import { useAuth } from "@/context/AuthContext";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import Spinner from "@/components/Spinner";
 
 const UploadImagePage = () => {
   const { user, loading } = useAuth();
@@ -81,11 +82,7 @@ const UploadImagePage = () => {
   }
 
   if (loading) {
-    return (
-      <main className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-muted/20">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-muted border-t-primary" />
-      </main>
-    );
+    return <Spinner />
   }
 
   if (!user) {

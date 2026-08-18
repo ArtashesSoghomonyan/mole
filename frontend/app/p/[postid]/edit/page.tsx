@@ -17,6 +17,7 @@ import { useAuth } from "@/context/AuthContext";
 import { mediaUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import Spinner from "@/components/Spinner";
 
 
 const PostEditPage = ({
@@ -172,11 +173,7 @@ const PostEditPage = ({
   }
 
   if (loading || postLoading) {
-    return (
-      <main className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-muted/20">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-muted border-t-primary" />
-      </main>
-    );
+    return <Spinner />;
   }
 
   if (!user) {

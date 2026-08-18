@@ -2,12 +2,15 @@
 
 import { useAuth } from "@/context/AuthContext";
 import { redirect } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
+import { UserIcon } from "@phosphor-icons/react";
 
 import AvatarCropper from "@/components/AvatarCropper";
 import { mediaUrl } from "@/utils";
-import "./style.css";
+import Spinner from "@/components/Spinner";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 
 const ProfilePage = () => {
   const { user, loading } = useAuth();
@@ -16,8 +19,16 @@ const ProfilePage = () => {
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [avatarBlob, setAvatarBlob] = useState<Blob | null>(null);
 
+  // Sync the bio field once the auth request resolves — the useState initializer
+  // runs before `user` is loaded, so it would otherwise stay empty.
+  useEffect(() => {
+    if (user?.profile?.bio !== undefined) {
+      setBio(user.profile.bio || "");
+    }
+  }, [user?.profile?.bio]);
+
   if (loading) {
-    return <h1>Loading...</h1>;
+    return <Spinner />;
   }
 
   if (!user) {
@@ -65,34 +76,68 @@ const ProfilePage = () => {
   };
 
   return (
-    <form className="profile" onSubmit={handleSubmit}>
-      <h1 className="no-select">Edit your profile page</h1>
+    <main className="min-h-[calc(100vh-4rem)] bg-muted/20 px-4 py-8">
+      <div className="mx-auto w-full max-w-2xl">
+        <form
+          onSubmit={handleSubmit}
+          className="overflow-hidden rounded-2xl border border-border bg-card text-card-foreground shadow-sm"
+        >
+          <header className="flex items-center gap-3 border-b border-border/80 px-5 py-4">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <UserIcon className="size-5" />
+            </span>
+            <div>
+              <h1 className="text-lg font-semibold tracking-tight">Edit profile</h1>
+              <p className="text-sm text-muted-foreground">Update your avatar and bio.</p>
+            </div>
+          </header>
 
-      {message && (
-        <div className={`message ${message.type}`}>
-          {message.text}
-        </div>
-      )}
+          <div className="space-y-6 px-5 py-5">
+            {message && (
+              <p
+                className={`rounded-md px-3 py-2 text-sm ${
+                  message.type === "success"
+                    ? "bg-primary/10 text-primary"
+                    : "bg-destructive/10 text-destructive"
+                }`}
+              >
+                {message.text}
+              </p>
+            )}
 
-      <div className="avatar-bar">
-        <img className="avatar" src={mediaUrl(user.profile?.avatar)} alt="Avatar" />
-        <AvatarCropper onCropComplete={handleAvatarCrop} />
+            <div className="flex items-center gap-4">
+              <img
+                src={mediaUrl(user.profile?.avatar)}
+                alt="Your avatar"
+                className="size-20 shrink-0 rounded-full border-2 border-border object-cover"
+              />
+              <AvatarCropper onCropComplete={handleAvatarCrop} />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="bio" className="text-sm font-medium text-foreground">
+                Bio
+              </label>
+              <Textarea
+                name="bio"
+                id="bio"
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                placeholder="Tell people a little about yourself..."
+                rows={5}
+                className="min-h-32 resize-y"
+              />
+            </div>
+          </div>
+
+          <footer className="flex items-center justify-end gap-3 border-t border-border/80 bg-muted/20 px-5 py-4">
+            <Button type="submit" disabled={saving}>
+              {saving ? "Saving..." : "Save changes"}
+            </Button>
+          </footer>
+        </form>
       </div>
-
-      <label htmlFor="bio">Bio:</label>
-      <textarea
-        name="bio"
-        id="bio"
-        value={bio}
-        onChange={(e) => setBio(e.target.value)}
-      >
-        {user?.profile.bio}
-      </textarea>
-
-      <button type="submit" className="btn btn-filled" disabled={saving}>
-        {saving ? "Saving..." : "Save"}
-      </button>
-    </form>
+    </main>
   );
 };
 
