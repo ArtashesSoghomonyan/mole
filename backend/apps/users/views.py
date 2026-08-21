@@ -1,4 +1,6 @@
+from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model, login, logout
+from django.contrib.auth.password_validation import validate_password
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, generics, status
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
@@ -10,7 +12,7 @@ from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 
 from apps.posts.models import Post
 from apps.posts.serializers import PostSerializer
-from apps.users.models import DeletedUserEmail, Follow, Profile
+from apps.users.models import DeletedUserEmail, Follow, Profile, User
 from apps.users.permissions import IsAnonymous
 from apps.users.serializers import (
     FollowSerializer,
@@ -18,6 +20,7 @@ from apps.users.serializers import (
     RegisterSerializer,
     SearchUserSerializer,
     UserSerializer,
+    ValidatePasswordSerializer,
 )
 
 
@@ -114,6 +117,35 @@ class CheckEmailView(APIView):
         return Response({
             "available": True,
         })
+
+
+class ValidatePasswordView(APIView):
+    def post(self, request):
+        serializer = ValidatePasswordSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        data = serializer.validated_data
+
+        user = User(
+            username=data["username"],
+            email=data["email"],
+            first_name=data["first_name"],
+            last_name=data["last_name"],
+        )
+
+        try:
+            validate_password(data["password"], user)
+        except ValidationError as e:
+            return Response(
+                {
+                    "valid": False,
+                    "password": e.messages
+                }
+            )
+
+        return Response(
+            {"valid": True},
+        )
 
 
 class FollowView(APIView):

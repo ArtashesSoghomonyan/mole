@@ -8,11 +8,7 @@ from django.core.validators import MaxLengthValidator, MinLengthValidator, Regex
 from django.db import models
 
 
-FORBIDDEN_USERNAMES = [
-    "register",
-    "profile",
-    "messages",
-]
+FORBIDDEN_USERNAMES = ["chat", "new", "notifications", "p", "profile", "register", "settings"]
 
 def validate_username_not_forbidden(value):
     if value.lower() in FORBIDDEN_USERNAMES:

@@ -1,55 +1,98 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { redirect } from "next/navigation";
-import Link from "next/link";
 import axios from "axios";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useState } from "react";
 
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
-import "./style.css";
+import Spinner from "@/components/Spinner";
+import { cn } from "@/lib/utils";
 
-type FormValues = {
-  username: string | null;
-  email: string | null;
-  firstName: string | null;
-  lastName: string | null;
-  password1: string | null;
-  password2: string | null;
+import FirstLastNameStep from "./steps/FirstLastNameStep";
+import PasswordWithConfirmStep from "./steps/PasswordWithConfirmStep";
+import UsernameEmailStep from "./steps/UsernameEmailStep";
+
+export type FormData = {
+  username: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  password: string;
+  passwordConfirm: string;
 };
 
-const forbiddenUsernames = ["register", "profile", "chat"];
+export type FormErrors = {
+  username: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  password: string;
+  passwordConfirm: string;
+};
 
-const RegisterPage = () => {
+export type StepProps = {
+  formData: FormData;
+  setFormData: (formData: FormData) => void;
+  errors: FormErrors;
+  setErrors: (formErrors: FormErrors) => void;
+};
+
+export const forbiddenUsernames = ["chat", "new", "notifications", "p", "profile", "register", "settings"];
+
+export default function RegistrationPage() {
   const { user, loading, login } = useAuth();
+  const router = useRouter();
 
-  const [finalError, setFinalError] = useState<boolean>(false);
+  const [step, setStep] = useState<number>(1);
+  const numberOfSteps: number = 3;
 
-  const [errors, setErrors] = useState<FormValues>({
-    username: null,
-    email: null,
-    firstName: null,
-    lastName: null,
-    password1: null,
-    password2: null,
-  });
-
-  const [formData, setFormData] = useState<FormValues>({
+  const [formData, setFormData] = useState<FormData>({
     username: "",
     email: "",
     firstName: "",
     lastName: "",
-    password1: "",
-    password2: "",
+    password: "",
+    passwordConfirm: "",
   });
 
-  const usernameTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const emailTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [errors, setErrors] = useState<FormErrors>({
+    username: "",
+    email: "",
+    firstName: "",
+    lastName: "",
+    password: "",
+    passwordConfirm: "",
+  });
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const stepIsInvalid = () => {
+    if (step === 1) {
+      if (errors.username || errors.email || !formData.username || !formData.email) return true;
+      return false;
+    } else if (step === 2) {
+      if (errors.firstName || errors.lastName || !formData.firstName || !formData.lastName) return true;
+      return false;
+    } else if (step === 3) {
+      if (errors.password || errors.passwordConfirm || !formData.password || !formData.passwordConfirm) return true;
+      return false;
+    } else {
+      return true;
+    }
+  };
+
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    Object.values(errors).forEach((item) => {
-      if (item !== null) return;
+    Object.values(errors).forEach(value => {
+      if (value !== "") return;
     });
 
     try {
@@ -60,258 +103,96 @@ const RegisterPage = () => {
           username: formData.username,
           first_name: formData.firstName,
           last_name: formData.lastName,
-          password: formData.password1,
+          password: formData.password,
         },
       );
 
       if (response.status === 201) {
-        login({
-          email: formData.email || "",
-          password: formData.password1 || "",
+        await login({
+          email: formData.email,
+          password: formData.password,
         });
-        redirect("/");
+        router.push("/");
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        setFinalError(true);
+        alert("Something went wrong, try again.");
       }
     }
-  };
-
-  const validateUsername = (username: string) => {
-    setFormData({ ...formData, username: username });
-
-    if (!(username.length >= 1 && username.length <= 50)) {
-      setErrors({
-        ...errors,
-        username: "Username can have less than 50 characters.",
-      });
-      return;
-    } else if (!/^[a-z_]+$/.test(username)) {
-      setErrors({
-        ...errors,
-        username: "Username can only contain english letters and underscores",
-      });
-      return;
-    } else if (forbiddenUsernames.includes(username)) {
-      setErrors({ ...errors, username: "This username is not allowed." });
-      return;
-    }
-
-    // Cancel the previous pending API call
-    if (usernameTimeoutRef.current) {
-      clearTimeout(usernameTimeoutRef.current);
-    }
-
-    // Debounce: wait 1 second after the user stops typing before calling the API
-    usernameTimeoutRef.current = setTimeout(async () => {
-      try {
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/users/check-username/`,
-          {
-            params: {
-              username: username,
-            },
-          },
-        );
-
-        if (!response.data.available) {
-          setErrors({ ...errors, username: "This username is already used." });
-        } else {
-          setErrors({ ...errors, username: null });
-        }
-      } catch {
-        setErrors({
-          ...errors,
-          username: "Could not check username availability.",
-        });
-      }
-    }, 1000);
-  };
-
-  const validateEmail = (email: string) => {
-    setFormData({ ...formData, email: email });
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setErrors({ ...errors, email: "Please enter a valid email." });
-      return;
-    }
-
-    // Cancel the previous pending API call
-    if (emailTimeoutRef.current) {
-      clearTimeout(emailTimeoutRef.current);
-    }
-
-    // Debounce: wait 1 second after the user stops typing before calling the API
-    emailTimeoutRef.current = setTimeout(async () => {
-      try {
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/users/check-email/`,
-          {
-            params: {
-              email: email,
-            },
-          },
-        );
-
-        if (!response.data.available) {
-          setErrors({
-            ...errors,
-            email: "This email is not available to use.",
-          });
-        } else {
-          setErrors({ ...errors, email: null });
-        }
-      } catch {
-        setErrors({ ...errors, email: "Could not check email availability." });
-      }
-    }, 1000);
-  };
-
-  const validateFirstName = (firstName: string) => {
-    setFormData({ ...formData, firstName: firstName });
-
-    if (!/^\p{L}+$/u.test(firstName)) {
-      setErrors({
-        ...errors,
-        firstName: "First name can only contain letters.",
-      });
-    } else {
-      setErrors({ ...errors, firstName: null });
-    }
-  };
-
-  const validateLastName = (lastName: string) => {
-    setFormData({ ...formData, lastName: lastName });
-
-    if (!/^\p{L}+$/u.test(lastName)) {
-      setErrors({ ...errors, lastName: "Last name can only contain letters." });
-    } else {
-      setErrors({ ...errors, lastName: null });
-    }
-  };
-
-  const validatePassword1 = (password1: string) => {
-    setFormData({ ...formData, password1: password1 });
-
-    if (password1.length <= 7) {
-      setErrors({
-        ...errors,
-        password1: "Password is too short, it should be at least 8 characters.",
-      });
-    } else if (/^\d+$/.test(password1)) {
-      setErrors({
-        ...errors,
-        password1: "Password cannot be entirely numeric.",
-      });
-    } else if (
-      [formData.username, formData.firstName, formData.lastName, formData.email]
-        .filter((v): v is string => v !== null)
-        .some((v) => password1.toLowerCase().includes(v.toLowerCase()))
-    ) {
-      setErrors({
-        ...errors,
-        password1: "Password is too similar to your personal information.",
-      });
-    } else {
-      setErrors({ ...errors, password1: null });
-    }
-  };
-
-  const validatePassword2 = (password2: string) => {
-    setFormData({ ...formData, password2: password2 });
-
-    if (password2 !== formData.password1) {
-      setErrors({ ...errors, password2: "Passwords don't match" });
-    } else {
-      setErrors({ ...errors, password2: null });
-    }
-  };
-
-  if (!!user) {
-    redirect("/");
   }
 
   if (loading) {
-    return <h1>Loading ...</h1>;
+    return <>
+      <title>Mole - Registration</title>
+      <Spinner />
+    </>
   }
 
-  return (
-    <>
-      <head>
-        <title>Mole - Register</title>
-      </head>
-      <form onSubmit={handleSubmit} className="registration-form">
-        <h1>Join our community!</h1>
-        {finalError && (
-          <h2 className="error">Something went wrong try again.</h2>
-        )}
-        <label htmlFor="username">Username: </label>
-        {errors.username && <p className="error">{errors.username}</p>}
-        <input
-          type="text"
-          name="username"
-          maxLength={50}
-          onChange={(e) => validateUsername(e.target.value.trim())}
-          placeholder="Username"
-          required
-        />
-        <label htmlFor="email">Email: </label>
-        {errors.email && <p className="error">{errors.email}</p>}
-        <input
-          type="email"
-          name="email"
-          onChange={(e) => validateEmail(e.target.value.trim())}
-          placeholder="Email"
-          required
-        />
-        <label htmlFor="first_name">First Name: </label>
-        {errors.firstName && <p className="error">{errors.firstName}</p>}
-        <input
-          type="text"
-          name="first_name"
-          maxLength={30}
-          onChange={(e) => validateFirstName(e.target.value.trim())}
-          placeholder="First Name"
-          required
-        />
-        <label htmlFor="last_name">Last Name: </label>
-        {errors.lastName && <p className="error">{errors.lastName}</p>}
-        <input
-          type="text"
-          name="last_name"
-          maxLength={30}
-          onChange={(e) => validateLastName(e.target.value.trim())}
-          placeholder="Last Name"
-          required
-        />
-        <label htmlFor="password1">Password: </label>
-        {errors.password1 && <p className="error">{errors.password1}</p>}
-        <input
-          type="password"
-          name="password1"
-          minLength={8}
-          onChange={(e) => validatePassword1(e.target.value.trim())}
-          placeholder="Password"
-          required
-        />
-        <label htmlFor="password2">Confirm Password: </label>
-        {errors.password2 && <p className="error">{errors.password2}</p>}
-        <input
-          type="password"
-          name="password2"
-          minLength={8}
-          onChange={(e) => validatePassword2(e.target.value.trim())}
-          placeholder="Confirm Password"
-          required
-        />
-        <input type="submit" value="Register" className="btn btn-filled" />
-        <p>
-          Already have an account? <Link href="/">Log in!</Link>
-        </p>
-      </form>
-    </>
-  );
-};
+  if (user) {
+    router.push("/");
+  }
 
-export default RegisterPage;
+  return <>
+    <title>Mole - Registration</title>
+    <main className="relative flex min-h-[calc(100vh-4rem)] items-center overflow-hidden bg-muted/20 px-4 py-10">
+      <div aria-hidden className="pointer-events-none absolute -top-32 -left-32 size-96 rounded-full bg-primary/10 blur-3xl" />
+      <div aria-hidden className="pointer-events-none absolute -right-32 -bottom-32 size-96 rounded-full bg-primary/10 blur-3xl" />
+
+      <div className="relative mx-auto w-full max-w-md">
+        <form onSubmit={handleFormSubmit}>
+          <Card className="w-full shadow-sm">
+            <CardHeader className="text-center">
+              <CardTitle>Join our community!</CardTitle>
+              <CardDescription>
+                Already have an account?{" "}
+                <Link href="/" className="font-medium text-primary underline-offset-4 hover:underline">Log in!</Link>
+              </CardDescription>
+            </CardHeader>
+
+            <div className="px-4">
+              <div className="mb-2 text-xs font-medium text-muted-foreground">
+                Step {step} of {numberOfSteps}
+              </div>
+              <div className="flex gap-1.5" aria-hidden="true">
+                {Array.from({ length: numberOfSteps }, (_, index) => (
+                  <div
+                    key={index}
+                    className={cn(
+                      "h-1 flex-1 rounded-full transition-colors",
+                      index + 1 <= step ? "bg-primary" : "bg-primary/15",
+                    )}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {step === 1 && <UsernameEmailStep
+              formData={formData}
+              setFormData={setFormData}
+              errors={errors}
+              setErrors={setErrors}
+              />}
+            {step === 2 && <FirstLastNameStep
+              formData={formData}
+              setFormData={setFormData}
+              errors={errors}
+              setErrors={setErrors}
+              />}
+            {step === 3 && <PasswordWithConfirmStep
+              formData={formData}
+              setFormData={setFormData}
+              errors={errors}
+              setErrors={setErrors}
+              />}
+            <CardFooter className="gap-3">
+              {step !== 1 && <Button type="button" variant="outline" onClick={() => setStep(step => step - 1)}>Back</Button>}
+              {step === numberOfSteps
+                ? <Button type="submit" className="flex-1" disabled={stepIsInvalid()}>Register</Button>
+                : <Button type="button" className="flex-1" onClick={() => setStep(step => step + 1)} disabled={stepIsInvalid()}>Next</Button>}
+            </CardFooter>
+          </Card>
+        </form>
+      </div>
+    </main>
+  </>
+}

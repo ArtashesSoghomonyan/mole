@@ -9,7 +9,7 @@ interface LoginCredentials {
   password: string;
 }
 
-interface AuthContextType {
+export interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (credentials: LoginCredentials) => Promise<void>;

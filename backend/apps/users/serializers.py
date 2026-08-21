@@ -107,3 +107,13 @@ class FollowSerializer(serializers.ModelSerializer):
         model = Follow
         fields = ["id", "user_from", "user_to", "created_at"]
         read_only_fields = ["id", "user_from", "created_at"]
+
+
+class ValidatePasswordSerializer(serializers.Serializer):
+    """This serializer is used only for /validate-password/ api view for input data"""
+
+    password = serializers.CharField(required=True)
+    username = serializers.CharField(required=True)
+    email = serializers.EmailField(required=True)
+    first_name = serializers.CharField(required=True)
+    last_name = serializers.CharField(required=True)

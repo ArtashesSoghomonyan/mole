@@ -12,6 +12,7 @@ from apps.users.views import (
     RegisterView,
     UserSearchView,
     UserView,
+    ValidatePasswordView,
 )
 
 urlpatterns = [
@@ -25,5 +26,6 @@ urlpatterns = [
     path("refresh/", TokenRefreshView.as_view(), name="refresh"),
     path("register/", RegisterView.as_view(), name="register"),
     path("search/", UserSearchView.as_view(), name="search_user"),
+    path("validate-password/", ValidatePasswordView.as_view(), name="validate_password"),
     path("<slug:username>/", UserView.as_view(), name="user"),
 ]

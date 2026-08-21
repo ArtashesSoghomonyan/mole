@@ -35,10 +35,10 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # Third party apps
-    "rest_framework",
-    "corsheaders",
-    'rest_framework_simplejwt',
     "channels",
+    "corsheaders",
+    "rest_framework",
+    'rest_framework_simplejwt',
     # Local apps
     "apps.chat.apps.ChatConfig",
     "apps.posts.apps.PostsConfig",
